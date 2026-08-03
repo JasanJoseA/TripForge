@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@theme {
+  /* ---- Forest / Adventure palette ---- */
+  --color-pine-950: #0a1310;
+  --color-pine-900: #0e1a15;
+  --color-pine-800: #16241d;
+  --color-moss-700: #1f3327;
+  --color-moss-600: #2c4634;
+  --color-spruce-500: #4a6b57;
+  --color-spruce-400: #6b8a76;
+  --color-fern-500: #7caa6e;
+  --color-fern-400: #9cc78e;
+  --color-parchment-100: #f2ecda;
+  --color-parchment-200: #e6dcbf;
+  --color-parchment-300: #d9c9a3;
+  --color-ember-500: #e8a33d;
+  --color-ember-400: #f0b85f;
+  --color-clay-500: #b5583a;
+
+  /* ---- Type ---- */
+  --font-display: "Fraunces", "Iowan Old Style", serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  src: local("Fraunces");
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-pine-950);
+  color: var(--color-parchment-200);
+  font-family: var(--font-body);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124,170,110,0.10), transparent),
+    repeating-linear-gradient(
+      transparent 0px, transparent 38px, rgba(217,201,163,0.025) 39px, transparent 40px
+    );
+}
+
+::selection {
+  background: var(--color-ember-500);
+  color: var(--color-pine-950);
+}
+
+/* topo-line texture used behind hero / section dividers */
+.topo-bg {
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(124,170,110,0.08) 0, transparent 40%),
+    radial-gradient(circle at 80% 60%, rgba(232,163,61,0.06) 0, transparent 45%);
+}
+
+/* trail waypoint pulse */
+@keyframes waypoint-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232,163,61,0.45); }
+  50% { box-shadow: 0 0 0 8px rgba(232,163,61,0); }
+}
+.waypoint-active {
+  animation: waypoint-pulse 2.2s ease-in-out infinite;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--color-pine-950); }
+::-webkit-scrollbar-thumb { background: var(--color-moss-600); border-radius: 8px; }
+
+.font-display { font-family: var(--font-display); }
+.font-mono { font-family: var(--font-mono); }
+
+/* focus visibility */
+:focus-visible {
+  outline: 2px solid var(--color-ember-400);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print / PDF export — used by the "Export as PDF" action on the Guardian report */
+@media print {
+  body { background: white !important; color: #1a1a1a !important; }
+  .no-print { display: none !important; }
+  .print-area { color: #1a1a1a !important; }
+  .print-area * {
+    background: white !important;
+    color: #1a1a1a !important;
+    border-color: #ccc !important;
+    box-shadow: none !important;
+  }
+}
