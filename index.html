@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TripForge</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c1016;
+      --panel: rgba(20, 28, 42, 0.93);
+      --panel-soft: rgba(30, 38, 54, 0.82);
+      --border: rgba(255, 255, 255, 0.08);
+      --glow: rgba(255, 166, 38, 0.18);
+      --accent: #ff9f00;
+      --accent-soft: #ffb64a;
+      --text: #e9eef7;
+      --muted: #9bb1c9;
+      --success: #35d186;
+      --danger: #ff6b6b;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: radial-gradient(circle at top, rgba(255,159,0,0.11), transparent 25%), linear-gradient(180deg, #070b12 0%, #0c1016 100%); color: var(--text); }
+    body { overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button, input, textarea, select { font: inherit; }
+    .app-shell { max-width: 1320px; margin: 0 auto; padding: 24px 20px 64px; }
+    header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 16px; padding-bottom: 18px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-icon { width: 48px; height: 48px; border-radius: 16px; background: linear-gradient(135deg, #ff9f00, #ff5e2c); box-shadow: 0 0 28px rgba(255,159,0,0.35); display: grid; place-items: center; color: #111; font-weight: 800; letter-spacing: -0.04em; }
+    .brand-title { line-height: 1.1; }
+    .brand-title h1 { margin: 0; font-size: 1.5rem; letter-spacing: -0.03em; }
+    .brand-title p { margin: 4px 0 0; color: var(--muted); }
+    .nav { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .nav button { border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: var(--text); padding: 10px 16px; border-radius: 999px; cursor: pointer; transition: transform .18s ease, background .18s ease; }
+    .nav button:hover { transform: translateY(-1px); background: rgba(255,255,255,0.08); }
+    .hero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 30px; margin-top: 12px; align-items: center; }
+    .hero-copy { max-width: 620px; }
+    .hero-copy h2 { margin: 0; font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.02; letter-spacing: -0.05em; }
+    .hero-copy p { margin: 22px 0 0; color: var(--muted); font-size: 1rem; line-height: 1.75; }
+    .hero-copy .pill { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; background: rgba(255,159,0,0.12); border: 1px solid rgba(255,159,0,0.24); color: #ffd599; padding: 10px 14px; border-radius: 999px; font-size: 0.95rem; }
+    .hero-copy .pill span { display: inline-flex; width: 8px; height: 8px; border-radius: 999px; background: #ffb347; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+    .hero-actions button { padding: 14px 18px; border-radius: 14px; border: none; cursor: pointer; font-weight: 700; transition: transform .2s ease, box-shadow .2s ease; }
+    .primary-btn { background: linear-gradient(135deg, #ff9f00, #ff5e2c); color: #111; box-shadow: 0 18px 30px rgba(255,159,0,0.24); }
+    .secondary-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: var(--text); }
+    .hero-actions button:hover { transform: translateY(-2px); }
+    .section { margin-top: 44px; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; }
+    .section-header h3 { margin: 0; font-size: 1.15rem; letter-spacing: -0.02em; }
+    .section-header p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 28px; box-shadow: var(--shadow); backdrop-filter: blur(18px); padding: 24px; }
+    .glass-card { background: rgba(18, 26, 40, 0.82); border: 1px solid rgba(255,255,255,0.08); border-radius: 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.22); backdrop-filter: blur(18px); }
+    .info-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+    label { display: block; font-size: 0.95rem; margin-bottom: 8px; color: var(--muted); }
+    input, textarea, select { width: 100%; border-radius: 18px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: var(--text); padding: 14px 16px; outline: none; transition: border .18s ease, transform .18s ease; }    
+    input:focus, textarea:focus, select:focus { border-color: rgba(255,159,0,0.35); transform: translateY(-1px); }
+    textarea { resize: vertical; min-height: 120px; }
+    .step-wizard { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .step-pill { padding: 14px 18px; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--muted); font-size: 0.95rem; display: inline-flex; align-items: center; gap: 10px; }
+    .step-pill.active { background: rgba(255,159,0,0.15); border-color: rgba(255,159,0,0.28); color: #ffd599; }
+    .timeline { display: grid; gap: 14px; margin-top: 16px; }
+    .timeline-item { display: flex; align-items: flex-start; gap: 12px; }
+    .timeline-bullet { width: 10px; height: 10px; margin-top: 6px; border-radius: 999px; background: #ff9f00; flex-shrink: 0; }
+    .timeline-item p { margin: 0; color: var(--muted); line-height: 1.6; }
+    .cards-grid { display: grid; gap: 20px; }
+    .card { position: relative; overflow: hidden; border-radius: 28px; padding: 24px; background: linear-gradient(180deg, rgba(34, 46, 66, 0.88), rgba(13, 18, 26, 0.98)); border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 22px 70px rgba(0,0,0,0.22); transition: transform .22s ease, border-color .22s ease; }
+    .card:hover { transform: translateY(-4px); border-color: rgba(255,159,0,0.28); }
+    .card h4 { margin: 0 0 8px; font-size: 1.15rem; display: flex; align-items: center; gap: 10px; }
+    .card .tag { padding: 4px 10px; border-radius: 999px; background: rgba(255,159,0,0.12); color: #ffb84f; font-size: 0.82rem; }
+    .tag.accent { background: rgba(75, 211, 161, 0.12); color: #8ef2be; }
+    .card p { margin: 0; color: var(--muted); line-height: 1.65; }
+    .card-list { display: grid; gap: 10px; margin: 18px 0 0; }
+    .card-list div { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.93rem; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .badge { border-radius: 999px; padding: 8px 12px; background: rgba(255,255,255,0.05); color: #e9eef7; font-size: 0.83rem; }
+    .primary-outline { border: 1px solid rgba(255,159,0,0.26); background: transparent; color: #ffd599; }
+    .primary-action { background: linear-gradient(135deg, #ff9f00, #ff5e2c); color: #111; border: none; padding: 14px 18px; border-radius: 18px; cursor: pointer; font-weight: 700; width: 100%; }
+    .primary-action:hover { opacity: .98; }
+    .hidden { display: none !important; }
+    .full-width { width: 100%; }
+    .stack { display: grid; gap: 18px; }
+    .micro { font-size: 0.86rem; color: var(--muted); }
+    .mini-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: rgba(255,255,255,0.04); border-radius: 999px; border: 1px solid rgba(255,255,255,0.08); font-size: 0.83rem; }
+    .rating-stars { display: inline-flex; gap: 4px; font-size: 1rem; }
+    .rating-stars span { color: #ffb347; }
+    .feedback-panel { display: grid; gap: 16px; margin-top: 18px; }
+    .feedback-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 18px; }
+    .feedback-card h5 { margin: 0 0 6px; font-size: 0.95rem; }
+    .feedback-card p { margin: 0; color: var(--muted); line-height: 1.65; }
+    .rating-row { display: grid; gap: 10px; }
+    .rating-row label { color: var(--muted); }
+    .rating-row textarea { min-height: 100px; }
+    .feedback-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+    .alert { padding: 14px 18px; border-radius: 20px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text); }
+    .alert strong { color: #fff; }
+    .saved-trips { display: grid; gap: 16px; }
+    .saved-summary { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 16px; }
+    .pill-tag { background: rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); color: var(--text); }
+    .small-text { font-size: 0.9rem; color: var(--muted); }
+    .status-dot { width: 10px; height: 10px; border-radius: 999px; background: #35d186; display: inline-block; margin-right: 8px; }
+    .settings-grid { display: grid; gap: 20px; }
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .toggle-switch { position: relative; width: 56px; height: 30px; border-radius: 999px; background: rgba(255,255,255,0.10); cursor: pointer; transition: background .22s ease; }
+    .toggle-switch::after { content: ''; position: absolute; width: 26px; height: 26px; border-radius: 999px; background: #fff; top: 2px; left: 2px; transition: transform .22s ease; box-shadow: 0 8px 18px rgba(0,0,0,0.18); }
+    .toggle-switch.active { background: linear-gradient(135deg, #ff9f00, #ff5e2c); }
+    .toggle-switch.active::after { transform: translateX(26px); }
+    .page { display: none; animation: fade 0.35s ease both; }
+    .page.active { display: block; }
+    @keyframes fade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 960px) { .hero { grid-template-columns: 1fr; } .info-grid { grid-template-columns: 1fr; } .hero-actions { justify-content: stretch; } }
+    @media (max-width: 720px) { .app-shell { padding: 20px 16px 48px; } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="brand">
+        <div class="brand-icon">TF</div>
+        <div class="brand-title">
+          <h1>TripForge</h1>
+          <p>Forge your trip with three traveling AI specialists.</p>
+        </div>
+      </div>
+      <div class="nav" role="navigation" aria-label="Main navigation">
+        <button type="button" data-page="landing">Home</button>
+        <button type="button" data-page="planner">Planner</button>
+        <button type="button" data-page="saved">Saved</button>
+        <button type="button" data-page="settings">Settings</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="pill"><span></span> Multi-agent planning, polished trip discoveries</span>
+        <h2>TripForge brings Scout, Explorer, and Guardian together to build your premium itinerary.</h2>
+        <p>Start with a guided travel profile, compare curated itinerary concepts, then review the safest, smartest trip recommendation with an AI expert summary.</p>
+        <div class="hero-actions">
+          <button class="primary-btn" data-page="planner">Start planning</button>
+          <button class="secondary-btn" data-page="saved">View saved trips</button>
+        </div>
+      </div>
+      <div class="panel glass-card">
+        <div class="section-header">
+          <div>
+            <h3>Trip forging workflow</h3>
+            <p>Everything in one page, responsive and immersive.</p>
+          </div>
+        </div>
+        <div class="timeline">
+          <div class="timeline-item"><span class="timeline-bullet"></span><p><strong>Scout:</strong> Ask tailored questions to create a full travel profile.</p></div>
+          <div class="timeline-item"><span class="timeline-bullet"></span><p><strong>Explorer:</strong> Generate five rich itinerary ideas with strong matching reasons.</p></div>
+          <div class="timeline-item"><span class="timeline-bullet"></span><p><strong>Guardian:</strong> Review the selected itinerary, safety, and final fit score.</p></div>
+          <div class="timeline-item"><span class="timeline-bullet"></span><p><strong>Feedback:</strong> Rate each agent and refine future workflows with saved guidance.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <main>
+      <section class="page active" id="landing">
+        <div class="section">
+          <div class="section-header">
+            <div>
+              <h3>Why TripForge?</h3>
+              <p>Designed as a premium multi-agent travel planner with modern interactive features and strong state persistence.</p>
+            </div>
+          </div>
+          <div class="cards-grid" style="grid-template-columns: repeat(auto-fit,minmax(260px,1fr));">
+            <div class="card">
+              <h4>Scout Conversation</h4>
+              <p>Build an intelligent travel profile with follow-up prompts and structured goals.</p>
+              <div class="badge-row"><span class="badge">Destination</span><span class="badge">Budget</span><span class="badge">Interests</span></div>
+            </div>
+            <div class="card">
+              <h4>Explorer Itinerary Ideas</h4>
+              <p>View five concept trips with cost estimates, difficulty, season, pros, cons, and match reasoning.</p>
+              <div class="badge-row"><span class="badge">5 Options</span><span class="badge">Comparison</span><span class="badge">Choose Trip</span></div>
+            </div>
+            <div class="card">
+              <h4>Guardian Review</h4>
+              <p>Receive a safety score, packing checklist, planning tips, hidden gems, and final verdict.</p>
+              <div class="badge-row"><span class="badge">Safety</span><span class="badge">Packing</span><span class="badge">Verdict</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="planner">
+        <div class="section">
+          <div class="section-header">
+            <div>
+              <h3>Scout – Travel Profile</h3>
+              <p>Complete the form and send it to Scout to create your structured travel profile.</p>
+            </div>
+          </div>
+          <div class="panel">
+            <form id="scout-form" class="stack">
+              <div class="info-grid">
+                <div>
+                  <label for="destination">Destination</label>
+                  <input id="destination" name="destination" placeholder="Tokyo, Lisbon, Patagonia" required />
+                </div>
+                <div>
+                  <label for="budget">Budget</label>
+                  <input id="budget" name="budget" placeholder="e.g. $3,500" required />
+                </div>
+                <div>
+                  <label for="dates">Preferred dates</label>
+                  <input id="dates" name="dates" placeholder="Nov 10 - Nov 18" required />
+                </div>
+                <div>
+                  <label for="travelers">Number of travelers</label>
+                  <select id="travelers" name="travelers" required>
+                    <option value="">Select</option>
+                    <option>Solo</option>
+                    <option>Couple</option>
+                    <option>Family</option>
+                    <option>Friends</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="tripLength">Trip length</label>
+                  <input id="tripLength" name="tripLength" placeholder="8 days" required />
+                </div>
+                <div>
+                  <label for="style">Travel style</label>
+                  <select id="style" name="style" required>
+                    <option value="">Select</option>
+                    <option>Luxury</option>
+                    <option>Adventure</option>
+                    <option>Relaxed</option>
+                    <option>Cultural</option>
+                    <option>Family-friendly</option>
+                  </select>
+                </div>
+              </div>
+              <div class="info-grid">
+                <div>
+                  <label for="interests">Interests</label>
+                  <input id="interests" name="interests" placeholder="Food, hiking, history" required />
+                </div>
+                <div>
+                  <label for="accommodations">Accommodation preferences</label>
+                  <input id="accommodations" name="accommodations" placeholder="Hotel, boutique, cabin" required />
+                </div>
+                <div>
+                  <label for="transport">Transportation preferences</label>
+                  <input id="transport" name="transport" placeholder="Train, rental car, flights" required />
+                </div>
+                <div>
+                  <label for="foodPrefs">Food preferences</label>
+                  <input id="foodPrefs" name="foodPrefs" placeholder="Local cuisine, vegetarian" required />
+                </div>
+                <div>
+                  <label for="accessibility">Accessibility needs</label>
+                  <input id="accessibility" name="accessibility" placeholder="Low mobility, quiet rooms" />
+                </div>
+                <div>
+                  <label for="specialRequests">Special requests</label>
+                  <input id="specialRequests" name="specialRequests" placeholder="Anniversary, photography, wellness" />
+                </div>
+              </div>
+              <textarea id="notes" name="notes" placeholder="Any additional notes for Scout to know..." rows="4"></textarea>
+              <button class="primary-action" type="submit">Ask Scout to craft the profile</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="section" style="margin-top: 32px;">
+          <div class="section-header">
+            <div>
+              <h3>Structured Travel Profile</h3>
+              <p>The output from Scout will appear here, ready to send to Explorer.</p>
+            </div>
+            <button class="secondary-btn" id="generate-itineraries">Send to Explorer</button>
+          </div>
+          <div class="panel" id="profile-output">
+            <p class="micro">No profile generated yet. Fill the Scout form and submit to see an intelligent travel profile.</p>
+          </div>
+        </div>
+
+        <div class="section" style="margin-top: 32px;">
+          <div class="section-header">
+            <div>
+              <h3>Explorer – Itinerary Concepts</h3>
+              <p>Explorer will create five itinerary cards for easy comparison and selection.</p>
+            </div>
+          </div>
+          <div class="cards-grid" id="itinerary-cards"></div>
+          <div id="explorer-status" class="alert hidden"></div>
+        </div>
+
+        <div class="section" style="margin-top: 32px;">
+          <div class="section-header">
+            <div>
+              <h3>Guardian – Review & Safety Summary</h3>
+              <p>Guardian analyzes your chosen itinerary and delivers a final verdict.</p>
+            </div>
+          </div>
+          <div class="panel" id="guardian-output">
+            <p class="micro">Select a trip from Explorer to request Guardian's analysis.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="saved">
+        <div class="section">
+          <div class="section-header">
+            <div>
+              <h3>Saved Trips & Feedback</h3>
+              <p>Trips, ratings, and feedback are stored locally for future planning sessions.</p>
+            </div>
+          </div>
+          <div class="saved-summary">
+            <div class="pill-tag">Saved trips: <strong id="saved-count">0</strong></div>
+            <div class="pill-tag">Feedback entries: <strong id="feedback-count">0</strong></div>
+          </div>
+          <div class="saved-trips" id="saved-trips-list"></div>
+        </div>
+      </section>
+
+      <section class="page" id="settings">
+        <div class="section">
+          <div class="section-header">
+            <div>
+              <h3>Settings</h3>
+              <p>Customize your experience and review the AI request helper in one place.</p>
+            </div>
+          </div>
+          <div class="settings-grid">
+            <div class="panel">
+              <div class="toggle-row">
+                <span>Dark mode</span>
+                <button id="theme-toggle" class="toggle-switch active" type="button" aria-label="Toggle dark mode"></button>
+              </div>
+              <p class="small-text">TripForge is optimized for a dark visual style with glowing forge-inspired accent colors.</p>
+            </div>
+            <div class="panel">
+              <h4>AI request helper</h4>
+              <p class="small-text">Every request uses the same endpoint with a reusable helper.</p>
+              <pre style="background: rgba(255,255,255,0.04); padding: 16px; border-radius: 18px; overflow-x: auto; font-size: 0.88rem; line-height: 1.55;">const apiHelper = async (messages) => {
+  const response = await fetch('https://vibe-proxy-gqv4.onrender.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer sk-vibe-summer-2026',
+    },
+    body: JSON.stringify({ model: 'class-chat-model', messages }),
+  });
+  return response.json();
+};</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" style="margin-top: 38px;">
+        <div class="section-header">
+          <div>
+            <h3>Rate the agents</h3>
+            <p>Every agent has a dedicated rating form and feedback store.</p>
+          </div>
+        </div>
+        <div class="panel rating-row">
+          <div class="grid" style="display:grid; gap:20px;">
+            <div class="card">
+              <h4>Rate Scout</h4>
+              <p class="micro">Did Scout learn your goals clearly? Suggest improvements.</p>
+              <label for="scout-rating">Score</label>
+              <select id="scout-rating" class="full-width"><option value="5">★★★★★</option><option value="4">★★★★☆</option><option value="3">★★★☆☆</option><option value="2">★★☆☆☆</option><option value="1">★☆☆☆☆</option></select>
+              <label for="scout-comment">Feedback</label>
+              <textarea id="scout-comment" placeholder="How can Scout improve?" rows="4"></textarea>
+              <button class="primary-action" id="submit-scout-feedback">Submit Scout feedback</button>
+            </div>
+            <div class="card">
+              <h4>Rate Explorer</h4>
+              <p class="micro">Were the itinerary options inspiring and relevant?</p>
+              <label for="explorer-rating">Score</label>
+              <select id="explorer-rating" class="full-width"><option value="5">★★★★★</option><option value="4">★★★★☆</option><option value="3">★★★☆☆</option><option value="2">★★☆☆☆</option><option value="1">★☆☆☆☆</option></select>
+              <label for="explorer-comment">Feedback</label>
+              <textarea id="explorer-comment" placeholder="How can Explorer improve?" rows="4"></textarea>
+              <button class="primary-action" id="submit-explorer-feedback">Submit Explorer feedback</button>
+            </div>
+            <div class="card">
+              <h4>Rate Guardian</h4>
+              <p class="micro">Was the final review helpful, safe, and practical?</p>
+              <label for="guardian-rating">Score</label>
+              <select id="guardian-rating" class="full-width"><option value="5">★★★★★</option><option value="4">★★★★☆</option><option value="3">★★★☆☆</option><option value="2">★★☆☆☆</option><option value="1">★☆☆☆☆</option></select>
+              <label for="guardian-comment">Feedback</label>
+              <textarea id="guardian-comment" placeholder="How can Guardian improve?" rows="4"></textarea>
+              <button class="primary-action" id="submit-guardian-feedback">Submit Guardian feedback</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      profile: null,
+      itineraries: [],
+      selectedItinerary: null,
+      feedback: loadFromStorage('tripforge-feedback') || [],
+      savedTrips: loadFromStorage('tripforge-saved-trips') || [],
+    };
+
+    const pageButtons = document.querySelectorAll('[data-page]');
+    const pages = document.querySelectorAll('.page');
+    const profileOutput = document.getElementById('profile-output');
+    const itineraryCards = document.getElementById('itinerary-cards');
+    const guardianOutput = document.getElementById('guardian-output');
+    const explorerStatus = document.getElementById('explorer-status');
+    const savedCount = document.getElementById('saved-count');
+    const feedbackCount = document.getElementById('feedback-count');
+    const savedTripsList = document.getElementById('saved-trips-list');
+    const themeToggle = document.getElementById('theme-toggle');
+
+    function loadFromStorage(key) {
+      try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (error) { return null; }
+    }
+
+    function saveToStorage(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function setActivePage(pageId) {
+      pages.forEach(page => page.classList.toggle('active', page.id === pageId));
+    }
+
+    pageButtons.forEach(button => {
+      button.addEventListener('click', () => setActivePage(button.dataset.page));
+    });
+
+    function updateSavedSummary() {
+      savedCount.textContent = state.savedTrips.length;
+      feedbackCount.textContent = state.feedback.length;
+      savedTripsList.innerHTML = state.savedTrips.length ? state.savedTrips.map((trip, idx) => `
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
+            <div>
+              <h4>${trip.name || 'Saved itinerary'}</h4>
+              <p class="small-text">${trip.description || 'Generated by TripForge'} • ${trip.date || 'No date'}</p>
+            </div>
+            <button type="button" style="border:none;background:rgba(255,255,255,0.08);color:var(--text);border-radius:14px;padding:8px 12px;cursor:pointer;" data-saved-index="${idx}">Delete</button>
+          </div>
+          <p>${trip.summary || 'No summary available.'}</p>
+        </div>
+      `).join('') : '<div class="alert">No saved trips yet. Select an itinerary and save it after Guardian review.</div>';
+
+      savedTripsList.querySelectorAll('[data-saved-index]').forEach(button => {
+        button.addEventListener('click', () => {
+          const index = Number(button.dataset['savedIndex']);
+          state.savedTrips.splice(index, 1);
+          saveToStorage('tripforge-saved-trips', state.savedTrips);
+          updateSavedSummary();
+        });
+      });
+    }
+
+    function renderProfile() {
+      if (!state.profile) {
+        profileOutput.innerHTML = '<p class="micro">No profile generated yet. Fill the Scout form and submit to see an intelligent travel profile.</p>';
+        return;
+      }
+      profileOutput.innerHTML = `
+        <div class="cards-grid" style="grid-template-columns: repeat(auto-fit,minmax(240px,1fr));">
+          ${Object.entries(state.profile).map(([key, value]) => `
+            <div class="card">
+              <h4>${toTitleCase(key)}</h4>
+              <p>${escapeHtml(value || '—')}</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderItineraries() {
+      if (!state.itineraries.length) {
+        itineraryCards.innerHTML = '<div class="alert">Explorer has not generated itinerary ideas yet. Send the travel profile first.</div>';
+        return;
+      }
+      itineraryCards.innerHTML = state.itineraries.map((trip, index) => `
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:start; gap:12px;">
+            <div>
+              <h4>${escapeHtml(trip.name)}</h4>
+              <div class="tag accent">${escapeHtml(trip.bestSeason || trip.duration || 'Premium plan')}</div>
+            </div>
+            <span class="tag">${escapeHtml(trip.estimate)}</span>
+          </div>
+          <p>${escapeHtml(trip.summary)}</p>
+          <div class="badge-row">
+            <span class="badge">${escapeHtml(trip.difficulty)}</span>
+            <span class="badge">${escapeHtml(trip.walkingLevel)}</span>
+            <span class="badge">${escapeHtml(trip.crowdLevel)}</span>
+          </div>
+          <div class="card-list">
+            <div><span>Main attractions</span><strong>${escapeHtml(trip.mainAttractions)}</strong></div>
+            <div><span>Transportation</span><strong>${escapeHtml(trip.transportation)}</strong></div>
+            <div><span>Why it matches</span><strong>${escapeHtml(trip.matchReason)}</strong></div>
+          </div>
+          <button class="primary-action" data-select-index="${index}">Choose Trip</button>
+        </div>
+      `).join('');
+
+      itineraryCards.querySelectorAll('[data-select-index]').forEach(button => {
+        button.addEventListener('click', () => {
+          const idx = Number(button.dataset.selectIndex);
+          state.selectedItinerary = state.itineraries[idx];
+          requestGuardianAnalysis();
+        });
+      });
+    }
+
+    function renderGuardian(output) {
+      guardianOutput.innerHTML = output ? `<div class="stack"><div class="badge-row"><span class="badge">Match Score</span><span class="badge">Safety</span><span class="badge">Checklist</span></div><div>${output}</div></div>` : '<p class="micro">Select a trip from Explorer to request Guardian analysis.</p>';
+    }
+
+    function toTitleCase(key) {
+      return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).replace(/_/g, ' ');
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text).replace(/[&<>"']/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[tag]));
+    }
+
+    const form = document.getElementById('scout-form');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const profile = {
+        destination: data.get('destination'),
+        budget: data.get('budget'),
+        dates: data.get('dates'),
+        tripLength: data.get('tripLength'),
+        travelers: data.get('travelers'),
+        style: data.get('style'),
+        interests: data.get('interests'),
+        accommodations: data.get('accommodations'),
+        transportation: data.get('transport'),
+        foodPreferences: data.get('foodPrefs'),
+        accessibility: data.get('accessibility'),
+        specialRequests: data.get('specialRequests'),
+        notes: data.get('notes'),
+      };
+      state.profile = profile;
+      renderProfile();
+      explorerStatus.classList.add('hidden');
+      state.itineraries = [];
+      renderItineraries();
+      guardianOutput.innerHTML = '<p class="micro">Select a trip from Explorer to request Guardian analysis.</p>';
+      document.querySelector('#generate-itineraries').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    document.getElementById('generate-itineraries').addEventListener('click', async () => {
+      if (!state.profile) {
+        explorerStatus.textContent = 'Please generate a travel profile with Scout before requesting itineraries.';
+        explorerStatus.classList.remove('hidden');
+        return;
+      }
+      explorerStatus.textContent = 'Explorer is crafting five itinerary concepts...';
+      explorerStatus.classList.remove('hidden');
+      try {
+        const itineraryOutput = await requestExplorerOptions(state.profile);
+        state.itineraries = itineraryOutput;
+        renderItineraries();
+        explorerStatus.textContent = 'Explorer delivered five itinerary concepts. Choose one to continue.';
+      } catch (error) {
+        explorerStatus.textContent = 'Unable to generate itineraries right now. Please try again later.';
+      }
+    });
+
+    function createApiHelper(messages) {
+      return fetch('https://vibe-proxy-gqv4.onrender.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer sk-vibe-summer-2026',
+        },
+        body: JSON.stringify({ model: 'class-chat-model', messages }),
+      })
+      .then(async res => {
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText || 'Network error');
+        }
+        return res.json();
+      });
+    }
+
+    async function requestExplorerOptions(profile) {
+      const prompt = `You are Explorer. Given this travel profile, generate exactly five distinct itinerary options as JSON. Include keys: name, estimate, duration, summary, mainAttractions, activities, difficulty, walkingLevel, crowdLevel, bestSeason, transportation, pros, cons, matchReason.`;
+      const profileText = JSON.stringify(profile, null, 2);
+      const messages = [
+        { role: 'user', content: `${prompt}\n\nTravel profile:\n${profileText}` }
+      ];
+      const response = await createApiHelper(messages);
+      const text = response?.choices?.[0]?.message?.content || '';
+      const parsed = parseItinerariesJson(text);
+      if (!parsed.length) {
+        return generateMockItineraries(profile);
+      }
+      return parsed;
+    }
+
+    async function requestGuardianAnalysis() {
+      if (!state.selectedItinerary) return;
+      guardianOutput.innerHTML = '<div class="alert">Guardian is reviewing the selected itinerary...</div>';
+      const prompt = `You are Guardian. Analyze this itinerary in detail, then output a Markdown summary with match score, safety, planning tips, packing checklist, hidden gems, possible risks, and final verdict.`;
+      const messages = [
+        { role: 'user', content: `${prompt}\n\nSelected itinerary:\n${JSON.stringify(state.selectedItinerary, null, 2)}\n\nTravel profile:\n${JSON.stringify(state.profile, null, 2)}` }
+      ];
+      try {
+        const response = await createApiHelper(messages);
+        const analysis = response?.choices?.[0]?.message?.content || '';
+        renderGuardian(formatMarkdown(analysis));
+      } catch (error) {
+        renderGuardian('<div class="alert">Guardian could not complete the review. Try again later.</div>');
+      }
+    }
+
+    function parseItinerariesJson(content) {
+      try {
+        const jsonStart = content.indexOf('{');
+        const cleaned = jsonStart >= 0 ? content.slice(jsonStart) : content;
+        const data = JSON.parse(cleaned);
+        if (Array.isArray(data)) return data;
+        if (data.itineraries && Array.isArray(data.itineraries)) return data.itineraries;
+      } catch (error) {
+        return [];
+      }
+      return [];
+    }
+
+    function formatMarkdown(markdown = '') {
+      const lines = markdown.split('\n').map(line => {
+        if (line.trim().startsWith('#')) return `<strong style="display:block;margin-top:1.1rem;">${escapeHtml(line.replace(/^#+\s*/, ''))}</strong>`;
+        if (line.trim().startsWith('-')) return `<div style="display:flex; gap:8px; align-items:flex-start;"><span style="color:#ffb347;">•</span><p style="margin:0; color:var(--muted);">${escapeHtml(line.replace(/^-\s*/, ''))}</p></div>`;
+        return `<p style="margin:0.55rem 0; color:var(--muted);">${escapeHtml(line)}</p>`;
+      });
+      return lines.join('');
+    }
+
+    function generateMockItineraries(profile) {
+      const top = profile.destination || 'your destination';
+      return [
+        {
+          name: `Signature ${top} Discovery`,
+          estimate: `${profile.budget || '$4,200'} total`,
+          duration: profile.tripLength || '7 days',
+          summary: `A premium balanced journey focused on culture, food, and landmark experiences in ${top}.`,
+          mainAttractions: 'Iconic landmarks, museums, food markets',
+          activities: 'City tours, tasting sessions, scenic walks',
+          difficulty: 'Moderate',
+          walkingLevel: 'Medium',
+          crowdLevel: 'Medium',
+          bestSeason: 'Early fall',
+          transportation: 'Train, rideshare, walking',
+          pros: 'Well-rounded, great food and comfort. Ideal for first-time visitors.',
+          cons: 'Not the cheapest option.',
+          matchReason: 'Matches your travel style and interest in local food and culture.',
+        },
+        {
+          name: `Adventure Forge`,
+          estimate: `${profile.budget || '$3,800'} total`,
+          duration: profile.tripLength || '7 days',
+          summary: `An active route with top hikes, outdoor viewpoints, and immersive local adventures.`,
+          mainAttractions: 'Nature trails, markets, scenic overlooks',
+          activities: 'Hiking, river cruises, photography sessions',
+          difficulty: 'High',
+          walkingLevel: 'High',
+          crowdLevel: 'Low',
+          bestSeason: 'Spring',
+          transportation: 'Rental car, local buses',
+          pros: 'Packed with adventure and memorable scenery.',
+          cons: 'Requires good fitness and energy.',
+          matchReason: 'For travelers seeking active and engaging days.',
+        },
+        {
+          name: `Cultured Comfort`,
+          estimate: `${profile.budget || '$4,000'} total`,
+          duration: profile.tripLength || '7 days',
+          summary: `A refined itinerary blending history, food, and relaxed evenings in premium accommodations.`,
+          mainAttractions: 'Historic districts, galleries, fine dining',
+          activities: 'Walking tours, tastings, museum visits',
+          difficulty: 'Easy',
+          walkingLevel: 'Low',
+          crowdLevel: 'High',
+          bestSeason: 'Late spring',
+          transportation: 'Private shuttles, tram',
+          pros: 'Comfort-first with strong cultural immersion.',
+          cons: 'Less outdoor adventure than other options.',
+          matchReason: 'Perfect for travelers who want culture without rush.',
+        },
+        {
+          name: `Local Flavor Circuit`,
+          estimate: `${profile.budget || '$3,600'} total`,
+          duration: profile.tripLength || '7 days',
+          summary: `A culinary first itinerary with local food, hidden cafes, and neighborhood discoveries.`,
+          mainAttractions: 'Street food hubs, cafes, markets',
+          activities: 'Food tours, cooking demos, local meetups',
+          difficulty: 'Moderate',
+          walkingLevel: 'Medium',
+          crowdLevel: 'Medium',
+          bestSeason: 'Summer',
+          transportation: 'Public transit, walking',
+          pros: 'Fantastic for food lovers and culture seekers.',
+          cons: 'May be intense for picky eaters.',
+          matchReason: 'Designed around your food preferences and immersive activities.',
+        },
+        {
+          name: `Restful Forge Retreat`,
+          estimate: `${profile.budget || '$4,100'} total`,
+          duration: profile.tripLength || '7 days',
+          summary: `An easy-paced escape with wellness, scenic neighborhoods, and calmer transportation.`,
+          mainAttractions: 'Parks, wellness centers, scenic promenades',
+          activities: 'Wellness sessions, gentle sightseeing, relaxing meals',
+          difficulty: 'Easy',
+          walkingLevel: 'Low',
+          crowdLevel: 'Low',
+          bestSeason: 'Early autumn',
+          transportation: 'Taxi, tram, walking',
+          pros: 'Low stress and relaxing pace.',
+          cons: 'Less intense sightseeing value.',
+          matchReason: 'Best if you prefer restful, comfortable travel.',
+        }
+      ];
+    }
+
+    const feedbackHandlers = [
+      { id: 'scout', rateId: 'scout-rating', commentId: 'scout-comment' },
+      { id: 'explorer', rateId: 'explorer-rating', commentId: 'explorer-comment' },
+      { id: 'guardian', rateId: 'guardian-rating', commentId: 'guardian-comment' },
+    ];
+
+    feedbackHandlers.forEach(agent => {
+      const button = document.getElementById(`submit-${agent.id}-feedback`);
+      button.addEventListener('click', () => {
+        const rating = document.getElementById(agent.rateId).value;
+        const comment = document.getElementById(agent.commentId).value.trim();
+        if (!comment) {
+          alert('Please share a short, constructive comment.');
+          return;
+        }
+        const entry = {
+          agent: agent.id,
+          rating: Number(rating),
+          comment,
+          timestamp: new Date().toISOString(),
+        };
+        state.feedback.push(entry);
+        saveToStorage('tripforge-feedback', state.feedback);
+        document.getElementById(agent.commentId).value = '';
+        alert('Feedback saved. It will help refine future AI guidance.');
+        updateSavedSummary();
+      });
+    });
+
+    themeToggle.addEventListener('click', () => {
+      const active = document.body.classList.toggle('light-theme');
+      themeToggle.classList.toggle('active', !active);
+      document.body.style.background = active
+        ? 'linear-gradient(180deg, #f5f2ec 0%, #dcd7ca 100%)'
+        : 'radial-gradient(circle at top, rgba(255,159,0,0.11), transparent 25%), linear-gradient(180deg, #070b12 0%, #0c1016 100%)';
+    });
+
+    function initialize() {
+      renderProfile();
+      renderItineraries();
+      renderGuardian();
+      updateSavedSummary();
+    }
+
+    initialize();
+  </script>
+</body>
+</html>
