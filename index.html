@@ -801,16 +801,19 @@ input[type="text"]:focus, textarea:focus, select:focus{border-color:var(--trail)
       return this.stateManager.get().questionIndex >= DISCOVERY_FIELDS.length;
     }
 
-    /**
-     * Placeholder async hook for a real LLM-driven interview.
-     * Resolves null (and caller falls back to the scripted question)
-     * when LLM_CONFIG.enabled is false.
-     */
-    async discoverTrip(conversationSoFar) {
-      const reply = await LLMClient.complete(
-        `Given this travel planning conversation so far: ${JSON.stringify(conversationSoFar)}, ask the single best next clarifying question.`,
-        { system: "You are an expert travel consultant conducting a discovery interview." }
-      );
+    async discoverTrip(conversationSoFar, nextField) {
+      const nextQuestionText = nextField
+        ? `Then ask this next clarifying question: ${nextField.question}`
+        : "Confirm that the interview is complete and the brief is ready to send to research.";
+
+      const system = `You are an expert travel consultant conducting a discovery interview. Speak conversationally, acknowledge the user's last answer, then ask the next clarifying question if there is one. If the interview is complete, say that you are ready to pass the trip brief to the Research Agent.`;
+
+      const prompt = `Conversation history:
+${JSON.stringify(conversationSoFar, null, 2)}
+
+${nextQuestionText}`;
+
+      const reply = await LLMClient.complete(prompt, { system });
       return reply;
     }
   }
@@ -1416,39 +1419,59 @@ input[type="text"]:focus, textarea:focus, select:focus{border-color:var(--trail)
     }
 
     init() {
-      this.ui.appendMessage("agent", this.discoveryAgent.getIntro());
-      this._askNextQuestion();
+      const intro = this.discoveryAgent.getIntro();
+      this.stateManager.update({
+        conversation: [{ role: "assistant", content: intro }]
+      });
+      this.ui.appendMessage("agent", intro);
+      this._promptDiscoveryAgent();
     }
 
-    _askNextQuestion() {
-      const field = this.discoveryAgent.getNextQuestion();
-      if (!field) {
-        this.ui.appendMessage("agent", "That's everything I need! Review your Trip Summary on the right, edit anything you like, then send it to the Research Agent.");
-        this.ui.renderQuickReplies([]);
-        this.ui.renderSummary();
-        return;
-      }
+    async _promptDiscoveryAgent() {
+      const currentState = this.stateManager.get();
+      const nextField = this.discoveryAgent.getNextQuestion();
+      const conversation = currentState.conversation;
+
       this.ui.showTypingIndicator();
-      setTimeout(() => {
-        this.ui.removeTypingIndicator();
-        this.ui.appendMessage("agent", field.question);
-        this.ui.renderQuickReplies(field.quick);
-      }, 550);
+      const reply = await this.discoveryAgent.discoverTrip(conversation, nextField);
+      this.ui.removeTypingIndicator();
+
+      if (reply) {
+        this.ui.appendMessage("agent", reply);
+        this.stateManager.update({
+          conversation: [...conversation, { role: "assistant", content: reply }]
+        });
+      } else if (nextField) {
+        this.ui.appendMessage("agent", nextField.question);
+        this.stateManager.update({
+          conversation: [...conversation, { role: "assistant", content: nextField.question }]
+        });
+      }
+
+      if (nextField) {
+        this.ui.renderQuickReplies(nextField.quick);
+      } else {
+        this.ui.renderQuickReplies([]);
+      }
     }
 
     async _handleUserAnswer(value) {
       const field = this.discoveryAgent.getNextQuestion();
       if (!field) return;
+
       this.ui.appendMessage("user", value);
       this.ui.renderQuickReplies([]);
       this.discoveryAgent.recordAnswer(field.id, value);
       this.ui.renderSummary();
 
-      // Placeholder hook: a real LLM could generate a smarter follow-up
-      // question here instead of pulling the next scripted field.
-      await this.discoveryAgent.discoverTrip(this.stateManager.get().traveler);
+      const currentState = this.stateManager.get();
+      const conversation = [
+        ...currentState.conversation,
+        { role: "user", content: value }
+      ];
+      this.stateManager.update({ conversation });
 
-      this._askNextQuestion();
+      await this._promptDiscoveryAgent();
     }
 
     _onEditSave(fieldId, value) {
