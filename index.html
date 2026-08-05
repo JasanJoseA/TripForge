@@ -1,782 +1,1558 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TripForge</title>
-  <style>
-    :root {
-      color-scheme: dark;
-      --bg: #0c1016;
-      --panel: rgba(20, 28, 42, 0.93);
-      --panel-soft: rgba(30, 38, 54, 0.82);
-      --border: rgba(255, 255, 255, 0.08);
-      --glow: rgba(255, 166, 38, 0.18);
-      --accent: #ff9f00;
-      --accent-soft: #ffb64a;
-      --text: #e9eef7;
-      --muted: #9bb1c9;
-      --success: #35d186;
-      --danger: #ff6b6b;
-      --shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TripForge — Three Agents, One Trip</title>
 
-    * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; background: radial-gradient(circle at top, rgba(255,159,0,0.11), transparent 25%), linear-gradient(180deg, #070b12 0%, #0c1016 100%); color: var(--text); }
-    body { overflow-x: hidden; }
-    a { color: inherit; text-decoration: none; }
-    button, input, textarea, select { font: inherit; }
-    .app-shell { max-width: 1320px; margin: 0 auto; padding: 24px 20px 64px; }
-    header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 16px; padding-bottom: 18px; }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .brand-icon { width: 48px; height: 48px; border-radius: 16px; background: linear-gradient(135deg, #ff9f00, #ff5e2c); box-shadow: 0 0 28px rgba(255,159,0,0.35); display: grid; place-items: center; color: #111; font-weight: 800; letter-spacing: -0.04em; }
-    .brand-title { line-height: 1.1; }
-    .brand-title h1 { margin: 0; font-size: 1.5rem; letter-spacing: -0.03em; }
-    .brand-title p { margin: 4px 0 0; color: var(--muted); }
-    .nav { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-    .nav button { border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: var(--text); padding: 10px 16px; border-radius: 999px; cursor: pointer; transition: transform .18s ease, background .18s ease; }
-    .nav button:hover { transform: translateY(-1px); background: rgba(255,255,255,0.08); }
-    .hero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 30px; margin-top: 12px; align-items: center; }
-    .hero-copy { max-width: 620px; }
-    .hero-copy h2 { margin: 0; font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.02; letter-spacing: -0.05em; }
-    .hero-copy p { margin: 22px 0 0; color: var(--muted); font-size: 1rem; line-height: 1.75; }
-    .hero-copy .pill { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; background: rgba(255,159,0,0.12); border: 1px solid rgba(255,159,0,0.24); color: #ffd599; padding: 10px 14px; border-radius: 999px; font-size: 0.95rem; }
-    .hero-copy .pill span { display: inline-flex; width: 8px; height: 8px; border-radius: 999px; background: #ffb347; }
-    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
-    .hero-actions button { padding: 14px 18px; border-radius: 14px; border: none; cursor: pointer; font-weight: 700; transition: transform .2s ease, box-shadow .2s ease; }
-    .primary-btn { background: linear-gradient(135deg, #ff9f00, #ff5e2c); color: #111; box-shadow: 0 18px 30px rgba(255,159,0,0.24); }
-    .secondary-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: var(--text); }
-    .hero-actions button:hover { transform: translateY(-2px); }
-    .section { margin-top: 44px; }
-    .section-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; }
-    .section-header h3 { margin: 0; font-size: 1.15rem; letter-spacing: -0.02em; }
-    .section-header p { margin: 0; color: var(--muted); font-size: 0.95rem; }
-    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 28px; box-shadow: var(--shadow); backdrop-filter: blur(18px); padding: 24px; }
-    .glass-card { background: rgba(18, 26, 40, 0.82); border: 1px solid rgba(255,255,255,0.08); border-radius: 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.22); backdrop-filter: blur(18px); }
-    .info-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
-    label { display: block; font-size: 0.95rem; margin-bottom: 8px; color: var(--muted); }
-    input, textarea, select { width: 100%; border-radius: 18px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: var(--text); padding: 14px 16px; outline: none; transition: border .18s ease, transform .18s ease; }    
-    input:focus, textarea:focus, select:focus { border-color: rgba(255,159,0,0.35); transform: translateY(-1px); }
-    textarea { resize: vertical; min-height: 120px; }
-    .step-wizard { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-    .step-pill { padding: 14px 18px; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--muted); font-size: 0.95rem; display: inline-flex; align-items: center; gap: 10px; }
-    .step-pill.active { background: rgba(255,159,0,0.15); border-color: rgba(255,159,0,0.28); color: #ffd599; }
-    .timeline { display: grid; gap: 14px; margin-top: 16px; }
-    .timeline-item { display: flex; align-items: flex-start; gap: 12px; }
-    .timeline-bullet { width: 10px; height: 10px; margin-top: 6px; border-radius: 999px; background: #ff9f00; flex-shrink: 0; }
-    .timeline-item p { margin: 0; color: var(--muted); line-height: 1.6; }
-    .cards-grid { display: grid; gap: 20px; }
-    .card { position: relative; overflow: hidden; border-radius: 28px; padding: 24px; background: linear-gradient(180deg, rgba(34, 46, 66, 0.88), rgba(13, 18, 26, 0.98)); border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 22px 70px rgba(0,0,0,0.22); transition: transform .22s ease, border-color .22s ease; }
-    .card:hover { transform: translateY(-4px); border-color: rgba(255,159,0,0.28); }
-    .card h4 { margin: 0 0 8px; font-size: 1.15rem; display: flex; align-items: center; gap: 10px; }
-    .card .tag { padding: 4px 10px; border-radius: 999px; background: rgba(255,159,0,0.12); color: #ffb84f; font-size: 0.82rem; }
-    .tag.accent { background: rgba(75, 211, 161, 0.12); color: #8ef2be; }
-    .card p { margin: 0; color: var(--muted); line-height: 1.65; }
-    .card-list { display: grid; gap: 10px; margin: 18px 0 0; }
-    .card-list div { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.93rem; }
-    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
-    .badge { border-radius: 999px; padding: 8px 12px; background: rgba(255,255,255,0.05); color: #e9eef7; font-size: 0.83rem; }
-    .primary-outline { border: 1px solid rgba(255,159,0,0.26); background: transparent; color: #ffd599; }
-    .primary-action { background: linear-gradient(135deg, #ff9f00, #ff5e2c); color: #111; border: none; padding: 14px 18px; border-radius: 18px; cursor: pointer; font-weight: 700; width: 100%; }
-    .primary-action:hover { opacity: .98; }
-    .hidden { display: none !important; }
-    .full-width { width: 100%; }
-    .stack { display: grid; gap: 18px; }
-    .micro { font-size: 0.86rem; color: var(--muted); }
-    .mini-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: rgba(255,255,255,0.04); border-radius: 999px; border: 1px solid rgba(255,255,255,0.08); font-size: 0.83rem; }
-    .rating-stars { display: inline-flex; gap: 4px; font-size: 1rem; }
-    .rating-stars span { color: #ffb347; }
-    .feedback-panel { display: grid; gap: 16px; margin-top: 18px; }
-    .feedback-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 18px; }
-    .feedback-card h5 { margin: 0 0 6px; font-size: 0.95rem; }
-    .feedback-card p { margin: 0; color: var(--muted); line-height: 1.65; }
-    .rating-row { display: grid; gap: 10px; }
-    .rating-row label { color: var(--muted); }
-    .rating-row textarea { min-height: 100px; }
-    .feedback-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
-    .alert { padding: 14px 18px; border-radius: 20px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text); }
-    .alert strong { color: #fff; }
-    .saved-trips { display: grid; gap: 16px; }
-    .saved-summary { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 16px; }
-    .pill-tag { background: rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); color: var(--text); }
-    .small-text { font-size: 0.9rem; color: var(--muted); }
-    .status-dot { width: 10px; height: 10px; border-radius: 999px; background: #35d186; display: inline-block; margin-right: 8px; }
-    .settings-grid { display: grid; gap: 20px; }
-    .toggle-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-    .toggle-switch { position: relative; width: 56px; height: 30px; border-radius: 999px; background: rgba(255,255,255,0.10); cursor: pointer; transition: background .22s ease; }
-    .toggle-switch::after { content: ''; position: absolute; width: 26px; height: 26px; border-radius: 999px; background: #fff; top: 2px; left: 2px; transition: transform .22s ease; box-shadow: 0 8px 18px rgba(0,0,0,0.18); }
-    .toggle-switch.active { background: linear-gradient(135deg, #ff9f00, #ff5e2c); }
-    .toggle-switch.active::after { transform: translateX(26px); }
-    .page { display: none; animation: fade 0.35s ease both; }
-    .page.active { display: block; }
-    @keyframes fade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 960px) { .hero { grid-template-columns: 1fr; } .info-grid { grid-template-columns: 1fr; } .hero-actions { justify-content: stretch; } }
-    @media (max-width: 720px) { .app-shell { padding: 20px 16px 48px; } }
-  </style>
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   Palette: Canopy #1F3D2B (deep pine), Moss #4C7754, Trail #8FA678
+   (sage), Bark #5B4636 (dark earth), Birch #F6F1E4 (warm cream),
+   Ember #C97B4A (trailhead accent, used sparingly for CTAs/alerts)
+   Type: "Fraunces" (display, variable, warm serif) + "Inter" (body/UI)
+   ============================================================ */
+:root{
+  --canopy:#1F3D2B;
+  --canopy-deep:#142A1D;
+  --moss:#4C7754;
+  --moss-light:#6C9A73;
+  --trail:#8FA678;
+  --bark:#5B4636;
+  --bark-light:#7A6250;
+  --birch:#F6F1E4;
+  --birch-dim:#EDE6D3;
+  --ember:#C97B4A;
+  --ember-dark:#A85F33;
+  --mist:rgba(246,241,228,0.08);
+  --glass-border:rgba(246,241,228,0.14);
+  --shadow-soft:0 10px 30px rgba(20,30,22,0.25);
+  --shadow-deep:0 20px 50px rgba(10,18,12,0.4);
+  --radius-lg:20px;
+  --radius-md:14px;
+  --radius-sm:8px;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important;}
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(76,119,84,0.35), transparent),
+    linear-gradient(180deg, var(--canopy-deep) 0%, #0F1F15 100%);
+  color:var(--birch);
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  line-height:1.5;
+  overflow-x:hidden;
+}
+
+h1,h2,h3,h4,.display{
+  font-family:'Fraunces',Georgia,serif;
+  font-weight:600;
+  letter-spacing:-0.01em;
+}
+
+a{color:var(--trail);}
+
+::selection{background:var(--moss);color:var(--birch);}
+
+::-webkit-scrollbar{width:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--moss);border-radius:10px;}
+
+.app-shell{
+  max-width:1180px;
+  margin:0 auto;
+  padding:0 24px 80px;
+  position:relative;
+}
+
+.canopy-bg{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  overflow:hidden;
+  opacity:0.5;
+}
+.canopy-bg svg{width:100%;height:100%;}
+
+/* HEADER */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:50;
+  backdrop-filter:blur(16px) saturate(140%);
+  background:rgba(15,31,21,0.72);
+  border-bottom:1px solid var(--glass-border);
+  padding:16px 24px;
+  margin:0 -24px 40px;
+}
+.header-inner{
+  max-width:1180px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  flex-wrap:wrap;
+}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand-mark{
+  width:38px;height:38px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(145deg,var(--moss),var(--canopy));
+  border-radius:11px;
+  box-shadow:0 4px 14px rgba(76,119,84,0.4);
+  flex-shrink:0;
+}
+.brand-name{font-size:1.3rem;color:var(--birch);}
+.brand-sub{font-size:0.72rem;color:var(--trail);letter-spacing:0.08em;text-transform:uppercase;margin-top:-2px;}
+
+.progress-tracker{display:flex;align-items:center;gap:6px;}
+.progress-step{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 14px 7px 8px;
+  border-radius:999px;
+  background:var(--mist);
+  border:1px solid var(--glass-border);
+  font-size:0.78rem;
+  color:rgba(246,241,228,0.55);
+  transition:all .4s var(--ease);
+  white-space:nowrap;
+}
+.progress-step .dot{
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(246,241,228,0.12);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.68rem;font-weight:700;
+  flex-shrink:0;
+  transition:all .4s var(--ease);
+}
+.progress-step.active{background:rgba(140,166,120,0.18);border-color:var(--trail);color:var(--birch);}
+.progress-step.active .dot{background:var(--trail);color:var(--canopy-deep);}
+.progress-step.done{color:rgba(246,241,228,0.8);}
+.progress-step.done .dot{background:var(--moss);color:var(--birch);}
+.progress-step.done .dot::after{content:"✓";}
+.progress-connector{width:16px;height:1px;background:var(--glass-border);flex-shrink:0;}
+
+/* AGENT BANNER */
+.agent-banner{
+  display:flex;align-items:center;gap:16px;
+  padding:20px 24px;
+  background:linear-gradient(135deg, rgba(76,119,84,0.16), rgba(31,61,43,0.3));
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-lg);
+  margin-bottom:28px;
+  animation:fadeSlideIn .5s var(--ease);
+}
+.agent-avatar{
+  width:52px;height:52px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;flex-shrink:0;
+  background:linear-gradient(150deg,var(--moss-light),var(--canopy));
+  box-shadow:var(--shadow-soft);
+  position:relative;
+}
+.agent-avatar.thinking::after{
+  content:"";position:absolute;inset:-4px;border-radius:18px;
+  border:2px solid var(--trail);opacity:0.6;
+  animation:pulseRing 1.6s ease-out infinite;
+}
+@keyframes pulseRing{0%{transform:scale(0.9);opacity:0.7;}100%{transform:scale(1.25);opacity:0;}}
+.agent-info{flex:1;min-width:0;}
+.agent-name{font-size:1.05rem;color:var(--birch);margin:0 0 2px;}
+.agent-status{font-size:0.85rem;color:var(--trail);display:flex;align-items:center;gap:8px;}
+.status-badge{
+  font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;
+  padding:3px 9px;border-radius:999px;
+  background:rgba(201,123,74,0.18);color:var(--ember);
+  border:1px solid rgba(201,123,74,0.35);
+}
+.status-badge.ready{background:rgba(140,166,120,0.18);color:var(--trail);border-color:rgba(140,166,120,0.35);}
+
+.typing-dots{display:inline-flex;gap:3px;align-items:center;}
+.typing-dots span{width:5px;height:5px;border-radius:50%;background:var(--trail);animation:typingBounce 1.2s infinite ease-in-out;}
+.typing-dots span:nth-child(2){animation-delay:.15s;}
+.typing-dots span:nth-child(3){animation-delay:.3s;}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0);opacity:.5;}30%{transform:translateY(-4px);opacity:1;}}
+
+/* GLASS CARD */
+.glass-card{
+  background:linear-gradient(160deg, rgba(246,241,228,0.06), rgba(246,241,228,0.02));
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-soft);
+  backdrop-filter:blur(10px);
+  padding:28px;
+}
+
+/* STAGE CONTAINERS */
+.stage{display:none;animation:fadeSlideIn .5s var(--ease);}
+.stage.active{display:block;}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+.stage-layout{display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start;}
+@media (max-width:880px){.stage-layout{grid-template-columns:1fr;}}
+
+/* CHAT (Agent 1) */
+.chat-panel{min-height:420px;display:flex;flex-direction:column;}
+.chat-log{
+  flex:1;display:flex;flex-direction:column;gap:16px;
+  margin-bottom:20px;max-height:480px;overflow-y:auto;padding-right:6px;
+}
+.msg{display:flex;gap:12px;max-width:88%;animation:msgIn .35s var(--ease);}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.msg.agent{align-self:flex-start;}
+.msg.user{align-self:flex-end;flex-direction:row-reverse;}
+.msg-avatar{
+  width:32px;height:32px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:0.95rem;
+  background:linear-gradient(150deg,var(--moss-light),var(--canopy));
+}
+.msg.user .msg-avatar{background:linear-gradient(150deg,var(--ember),var(--ember-dark));}
+.msg-bubble{
+  padding:12px 16px;border-radius:var(--radius-md);
+  background:rgba(246,241,228,0.07);border:1px solid var(--glass-border);
+  font-size:0.93rem;color:rgba(246,241,228,0.92);
+}
+.msg.user .msg-bubble{background:rgba(201,123,74,0.15);border-color:rgba(201,123,74,0.3);}
+
+.chat-input-row{display:flex;gap:10px;flex-wrap:wrap;}
+.quick-replies{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.quick-reply{
+  padding:8px 14px;border-radius:999px;
+  background:rgba(140,166,120,0.14);border:1px solid rgba(140,166,120,0.3);
+  color:var(--birch);font-size:0.82rem;cursor:pointer;
+  transition:all .25s var(--ease);
+}
+.quick-reply:hover,.quick-reply:focus-visible{background:var(--moss);border-color:var(--moss);transform:translateY(-1px);}
+
+input[type="text"], textarea, select{
+  font-family:inherit;font-size:0.93rem;padding:12px 16px;
+  border-radius:var(--radius-sm);border:1px solid var(--glass-border);
+  background:rgba(15,31,21,0.5);color:var(--birch);outline:none;
+  transition:border-color .25s var(--ease);
+}
+input[type="text"]:focus, textarea:focus, select:focus{border-color:var(--trail);}
+.chat-input-row input[type="text"]{flex:1;min-width:180px;}
+
+.btn{
+  font-family:inherit;font-size:0.9rem;font-weight:600;
+  padding:12px 22px;border-radius:999px;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;
+  transition:transform .2s var(--ease), box-shadow .2s var(--ease), background .2s var(--ease);
+}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:linear-gradient(135deg,var(--moss-light),var(--moss));color:var(--birch);box-shadow:0 6px 18px rgba(76,119,84,0.35);}
+.btn-primary:hover{box-shadow:0 8px 24px rgba(76,119,84,0.5);transform:translateY(-1px);}
+.btn-ember{background:linear-gradient(135deg,var(--ember),var(--ember-dark));color:var(--birch);box-shadow:0 6px 18px rgba(201,123,74,0.35);}
+.btn-ember:hover{box-shadow:0 8px 24px rgba(201,123,74,0.5);transform:translateY(-1px);}
+.btn-ghost{background:rgba(246,241,228,0.06);color:var(--birch);border:1px solid var(--glass-border);}
+.btn-ghost:hover{background:rgba(246,241,228,0.12);}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.btn-sm{padding:7px 14px;font-size:0.78rem;}
+.btn:focus-visible, .quick-reply:focus-visible, input:focus-visible{outline:2px solid var(--trail);outline-offset:2px;}
+
+/* SUMMARY SIDEBAR */
+.summary-card{position:sticky;top:110px;}
+.summary-title{font-size:0.98rem;color:var(--birch);margin:0 0 16px;display:flex;align-items:center;gap:8px;}
+.summary-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+.summary-item{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+  padding:10px 12px;border-radius:var(--radius-sm);
+  background:rgba(246,241,228,0.04);font-size:0.82rem;
+  border:1px solid transparent;transition:border-color .2s;
+}
+.summary-item:hover{border-color:var(--glass-border);}
+.summary-label{color:var(--trail);flex-shrink:0;}
+.summary-value{color:var(--birch);text-align:right;font-weight:500;}
+.summary-edit{background:none;border:none;color:var(--trail);cursor:pointer;font-size:0.72rem;text-decoration:underline;padding:0;}
+.summary-empty{color:rgba(246,241,228,0.4);font-size:0.82rem;font-style:italic;}
+.summary-progress-bar{height:6px;border-radius:999px;background:rgba(246,241,228,0.08);overflow:hidden;margin-bottom:16px;}
+.summary-progress-fill{height:100%;background:linear-gradient(90deg,var(--moss),var(--trail));border-radius:999px;transition:width .5s var(--ease);}
+
+/* RESEARCH CARDS */
+.section-heading{text-align:center;margin-bottom:36px;}
+.section-heading h2{font-size:1.9rem;color:var(--birch);margin:0 0 8px;}
+.section-heading p{color:var(--trail);font-size:0.95rem;margin:0;}
+
+.trip-cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+@media (max-width:960px){.trip-cards-grid{grid-template-columns:1fr;}}
+
+.trip-card{
+  position:relative;border-radius:var(--radius-lg);overflow:hidden;
+  background:linear-gradient(165deg, rgba(76,119,84,0.14), rgba(31,61,43,0.4));
+  border:1px solid var(--glass-border);box-shadow:var(--shadow-soft);
+  display:flex;flex-direction:column;
+  transition:transform .4s var(--ease), box-shadow .4s var(--ease);
+  animation:cardFloat .6s var(--ease) backwards;
+}
+.trip-card:nth-child(1){animation-delay:.05s;}
+.trip-card:nth-child(2){animation-delay:.18s;}
+.trip-card:nth-child(3){animation-delay:.31s;}
+@keyframes cardFloat{from{opacity:0;transform:translateY(24px) scale(.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+.trip-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-deep);}
+.trip-card-header{padding:26px 24px 18px;border-bottom:1px solid var(--glass-border);position:relative;}
+.trip-card-header::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--moss),var(--trail),var(--ember));}
+.trip-card-title{font-size:1.35rem;color:var(--birch);margin:0 0 6px;}
+.trip-card-tagline{font-style:italic;color:var(--trail);font-size:0.88rem;margin:0;}
+.trip-card-body{padding:20px 24px;flex:1;display:flex;flex-direction:column;gap:16px;}
+
+.cost-badge{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;
+  background:rgba(201,123,74,0.16);color:var(--ember);border:1px solid rgba(201,123,74,0.3);
+  font-size:0.82rem;font-weight:600;align-self:flex-start;
+}
+
+.rating-group{display:flex;flex-direction:column;gap:8px;}
+.rating-row{display:flex;align-items:center;gap:10px;}
+.rating-label{font-size:0.75rem;color:var(--trail);width:82px;flex-shrink:0;}
+.rating-bar-track{flex:1;height:6px;border-radius:999px;background:rgba(246,241,228,0.08);overflow:hidden;}
+.rating-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--moss),var(--trail));transition:width .8s var(--ease);}
+
+.trip-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.78rem;color:rgba(246,241,228,0.75);}
+.trip-meta-grid div span{display:block;color:var(--trail);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;}
+
+.trip-card-footer{padding:18px 24px 24px;}
+.trip-card-footer .btn{width:100%;justify-content:center;}
+
+/* VALIDATION */
+.match-hero{
+  display:flex;align-items:center;gap:28px;padding:32px;
+  background:linear-gradient(135deg, rgba(76,119,84,0.2), rgba(31,61,43,0.4));
+  border:1px solid var(--glass-border);border-radius:var(--radius-lg);
+  margin-bottom:28px;flex-wrap:wrap;
+}
+.match-ring{
+  width:120px;height:120px;border-radius:50%;flex-shrink:0;
+  background:conic-gradient(var(--trail) calc(var(--pct,0)*1%), rgba(246,241,228,0.08) 0);
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.match-ring::before{content:"";position:absolute;inset:10px;border-radius:50%;background:var(--canopy-deep);}
+.match-ring-value{position:relative;z-index:1;font-size:1.7rem;font-family:'Fraunces',serif;color:var(--birch);}
+.match-hero-text h3{margin:0 0 8px;font-size:1.3rem;color:var(--birch);}
+.match-hero-text p{margin:0;color:rgba(246,241,228,0.75);font-size:0.9rem;max-width:520px;}
+
+.score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+@media (max-width:880px){.score-grid{grid-template-columns:repeat(2,1fr);}}
+.score-tile{padding:16px;border-radius:var(--radius-md);background:rgba(246,241,228,0.05);border:1px solid var(--glass-border);text-align:center;}
+.score-tile-value{font-size:1.5rem;font-family:'Fraunces',serif;color:var(--trail);}
+.score-tile-label{font-size:0.72rem;color:rgba(246,241,228,0.6);text-transform:uppercase;letter-spacing:0.04em;margin-top:4px;}
+
+.fit-reasons{display:flex;flex-direction:column;gap:10px;margin-bottom:8px;}
+.fit-reason{
+  display:flex;gap:12px;padding:14px 16px;border-radius:var(--radius-md);
+  background:rgba(140,166,120,0.08);border:1px solid var(--glass-border);
+  font-size:0.87rem;color:rgba(246,241,228,0.88);
+}
+.fit-reason-icon{flex-shrink:0;font-size:1.1rem;}
+
+.accordion{border:1px solid var(--glass-border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:14px;background:rgba(246,241,228,0.03);}
+.accordion-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;user-select:none;transition:background .2s;}
+.accordion-header:hover{background:rgba(246,241,228,0.04);}
+.accordion-header h3{margin:0;font-size:1.05rem;color:var(--birch);display:flex;align-items:center;gap:10px;}
+.accordion-chevron{transition:transform .3s var(--ease);color:var(--trail);}
+.accordion.open .accordion-chevron{transform:rotate(180deg);}
+.accordion-body{max-height:0;overflow:hidden;transition:max-height .4s var(--ease);}
+.accordion.open .accordion-body{max-height:4000px;}
+.accordion-body-inner{padding:0 20px 20px;}
+
+.day-block{margin-bottom:6px;}
+.day-title{font-size:1.05rem;color:var(--birch);display:flex;align-items:center;gap:10px;margin:20px 0 12px;}
+.day-title .day-num{
+  width:30px;height:30px;border-radius:50%;background:var(--moss);color:var(--birch);
+  display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-family:'Inter';font-weight:700;flex-shrink:0;
+}
+.timeline{position:relative;padding-left:24px;border-left:2px solid rgba(140,166,120,0.3);display:flex;flex-direction:column;gap:16px;}
+.timeline-item{position:relative;}
+.timeline-item::before{content:"";position:absolute;left:-30px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--trail);border:2px solid var(--canopy-deep);}
+.timeline-period{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--ember);margin-bottom:3px;}
+.timeline-content{font-size:0.88rem;color:rgba(246,241,228,0.88);}
+
+.safety-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+@media (max-width:700px){.safety-grid{grid-template-columns:1fr;}}
+.safety-alert{padding:14px 16px;border-radius:var(--radius-md);background:rgba(201,123,74,0.08);border:1px solid rgba(201,123,74,0.25);font-size:0.85rem;}
+.safety-alert strong{color:var(--ember);display:block;margin-bottom:4px;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.03em;}
+
+.enjoy-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+@media (max-width:700px){.enjoy-grid{grid-template-columns:1fr;}}
+.enjoy-item{padding:14px 16px;border-radius:var(--radius-md);background:rgba(140,166,120,0.08);border:1px solid rgba(140,166,120,0.25);font-size:0.85rem;}
+.enjoy-item strong{color:var(--trail);display:block;margin-bottom:4px;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.03em;}
+
+/* TOASTS */
+.toast-stack{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:10px;z-index:200;}
+.toast{
+  padding:14px 18px;border-radius:var(--radius-md);
+  background:rgba(31,61,43,0.95);border:1px solid var(--glass-border);
+  box-shadow:var(--shadow-deep);color:var(--birch);font-size:0.85rem;
+  display:flex;align-items:center;gap:10px;max-width:320px;
+  animation:toastIn .3s var(--ease);
+}
+.toast.success{border-color:rgba(140,166,120,0.5);}
+.toast.error{border-color:rgba(201,123,74,0.5);}
+@keyframes toastIn{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(10,18,12,0.65);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;z-index:300;padding:20px;
+}
+.modal-overlay.open{display:flex;animation:fadeIn .25s var(--ease);}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal-box{
+  background:linear-gradient(160deg, var(--canopy), var(--canopy-deep));
+  border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:28px;
+  max-width:480px;width:100%;box-shadow:var(--shadow-deep);
+  animation:modalIn .3s var(--ease);
+}
+@keyframes modalIn{from{opacity:0;transform:scale(0.94) translateY(10px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.modal-box h3{margin:0 0 16px;color:var(--birch);}
+.modal-field{margin-bottom:14px;display:flex;flex-direction:column;gap:6px;}
+.modal-field label{font-size:0.8rem;color:var(--trail);}
+.modal-field input,.modal-field select{width:100%;}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
+
+/* LOADING */
+.loading-overlay{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:80px 20px;text-align:center;}
+.spinner-compass{width:64px;height:64px;position:relative;}
+.spinner-compass svg{animation:spin 2.2s linear infinite;width:100%;height:100%;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-overlay p{color:var(--trail);font-size:0.9rem;margin:0;}
+.loading-overlay .loading-sub{color:rgba(246,241,228,0.5);font-size:0.78rem;}
+
+.stage-controls{display:flex;justify-content:space-between;align-items:center;margin-top:32px;gap:12px;flex-wrap:wrap;}
+
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+
+@media (prefers-contrast: more){
+  :root{--glass-border:rgba(246,241,228,0.4);}
+  .glass-card,.trip-card,.accordion{border-width:2px;}
+}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="app-shell">
-    <header>
-      <div class="brand">
-        <div class="brand-icon">TF</div>
-        <div class="brand-title">
-          <h1>TripForge</h1>
-          <p>Forge your trip with three traveling AI specialists.</p>
-        </div>
+
+<div class="canopy-bg" aria-hidden="true">
+  <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+    <circle cx="10" cy="15" r="1.2" fill="#4C7754" opacity="0.5"/>
+    <circle cx="30" cy="8" r="0.8" fill="#8FA678" opacity="0.4"/>
+    <circle cx="55" cy="20" r="1.5" fill="#4C7754" opacity="0.3"/>
+    <circle cx="75" cy="5" r="1" fill="#8FA678" opacity="0.4"/>
+    <circle cx="90" cy="25" r="1.3" fill="#4C7754" opacity="0.35"/>
+    <circle cx="20" cy="60" r="1" fill="#8FA678" opacity="0.3"/>
+    <circle cx="65" cy="70" r="1.4" fill="#4C7754" opacity="0.4"/>
+    <circle cx="85" cy="55" r="0.9" fill="#8FA678" opacity="0.3"/>
+    <circle cx="5" cy="85" r="1.1" fill="#4C7754" opacity="0.3"/>
+    <circle cx="45" cy="90" r="1.3" fill="#8FA678" opacity="0.35"/>
+  </svg>
+</div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L5 14H10L4 22H20L14 14H19L12 2Z" fill="#F6F1E4"/>
+        </svg>
       </div>
-      <div class="nav" role="navigation" aria-label="Main navigation">
-        <button type="button" data-page="landing">Home</button>
-        <button type="button" data-page="planner">Planner</button>
-        <button type="button" data-page="saved">Saved</button>
-        <button type="button" data-page="settings">Settings</button>
+      <div>
+        <div class="brand-name">TripForge</div>
+        <div class="brand-sub">Three agents, one trip</div>
       </div>
-    </header>
-
-    <section class="hero">
-      <div class="hero-copy">
-        <span class="pill"><span></span> Multi-agent planning, polished trip discoveries</span>
-        <h2>TripForge brings Scout, Explorer, and Guardian together to build your premium itinerary.</h2>
-        <p>Start with a guided travel profile, compare curated itinerary concepts, then review the safest, smartest trip recommendation with an AI expert summary.</p>
-        <div class="hero-actions">
-          <button class="primary-btn" data-page="planner">Start planning</button>
-          <button class="secondary-btn" data-page="saved">View saved trips</button>
-        </div>
-      </div>
-      <div class="panel glass-card">
-        <div class="section-header">
-          <div>
-            <h3>Trip forging workflow</h3>
-            <p>Everything in one page, responsive and immersive.</p>
-          </div>
-        </div>
-        <div class="timeline">
-          <div class="timeline-item"><span class="timeline-bullet"></span><p><strong>Scout:</strong> Ask tailored questions to create a full travel profile.</p></div>
-          <div class="timeline-item"><span class="timeline-bullet"></span><p><strong>Explorer:</strong> Generate five rich itinerary ideas with strong matching reasons.</p></div>
-          <div class="timeline-item"><span class="timeline-bullet"></span><p><strong>Guardian:</strong> Review the selected itinerary, safety, and final fit score.</p></div>
-          <div class="timeline-item"><span class="timeline-bullet"></span><p><strong>Feedback:</strong> Rate each agent and refine future workflows with saved guidance.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <main>
-      <section class="page active" id="landing">
-        <div class="section">
-          <div class="section-header">
-            <div>
-              <h3>Why TripForge?</h3>
-              <p>Designed as a premium multi-agent travel planner with modern interactive features and strong state persistence.</p>
-            </div>
-          </div>
-          <div class="cards-grid" style="grid-template-columns: repeat(auto-fit,minmax(260px,1fr));">
-            <div class="card">
-              <h4>Scout Conversation</h4>
-              <p>Build an intelligent travel profile with follow-up prompts and structured goals.</p>
-              <div class="badge-row"><span class="badge">Destination</span><span class="badge">Budget</span><span class="badge">Interests</span></div>
-            </div>
-            <div class="card">
-              <h4>Explorer Itinerary Ideas</h4>
-              <p>View five concept trips with cost estimates, difficulty, season, pros, cons, and match reasoning.</p>
-              <div class="badge-row"><span class="badge">5 Options</span><span class="badge">Comparison</span><span class="badge">Choose Trip</span></div>
-            </div>
-            <div class="card">
-              <h4>Guardian Review</h4>
-              <p>Receive a safety score, packing checklist, planning tips, hidden gems, and final verdict.</p>
-              <div class="badge-row"><span class="badge">Safety</span><span class="badge">Packing</span><span class="badge">Verdict</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="page" id="planner">
-        <div class="section">
-          <div class="section-header">
-            <div>
-              <h3>Scout – Travel Profile</h3>
-              <p>Complete the form and send it to Scout to create your structured travel profile.</p>
-            </div>
-          </div>
-          <div class="panel">
-            <form id="scout-form" class="stack">
-              <div class="info-grid">
-                <div>
-                  <label for="destination">Destination</label>
-                  <input id="destination" name="destination" placeholder="Tokyo, Lisbon, Patagonia" required />
-                </div>
-                <div>
-                  <label for="budget">Budget</label>
-                  <input id="budget" name="budget" placeholder="e.g. $3,500" required />
-                </div>
-                <div>
-                  <label for="dates">Preferred dates</label>
-                  <input id="dates" name="dates" placeholder="Nov 10 - Nov 18" required />
-                </div>
-                <div>
-                  <label for="travelers">Number of travelers</label>
-                  <select id="travelers" name="travelers" required>
-                    <option value="">Select</option>
-                    <option>Solo</option>
-                    <option>Couple</option>
-                    <option>Family</option>
-                    <option>Friends</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="tripLength">Trip length</label>
-                  <input id="tripLength" name="tripLength" placeholder="8 days" required />
-                </div>
-                <div>
-                  <label for="style">Travel style</label>
-                  <select id="style" name="style" required>
-                    <option value="">Select</option>
-                    <option>Luxury</option>
-                    <option>Adventure</option>
-                    <option>Relaxed</option>
-                    <option>Cultural</option>
-                    <option>Family-friendly</option>
-                  </select>
-                </div>
-              </div>
-              <div class="info-grid">
-                <div>
-                  <label for="interests">Interests</label>
-                  <input id="interests" name="interests" placeholder="Food, hiking, history" required />
-                </div>
-                <div>
-                  <label for="accommodations">Accommodation preferences</label>
-                  <input id="accommodations" name="accommodations" placeholder="Hotel, boutique, cabin" required />
-                </div>
-                <div>
-                  <label for="transport">Transportation preferences</label>
-                  <input id="transport" name="transport" placeholder="Train, rental car, flights" required />
-                </div>
-                <div>
-                  <label for="foodPrefs">Food preferences</label>
-                  <input id="foodPrefs" name="foodPrefs" placeholder="Local cuisine, vegetarian" required />
-                </div>
-                <div>
-                  <label for="accessibility">Accessibility needs</label>
-                  <input id="accessibility" name="accessibility" placeholder="Low mobility, quiet rooms" />
-                </div>
-                <div>
-                  <label for="specialRequests">Special requests</label>
-                  <input id="specialRequests" name="specialRequests" placeholder="Anniversary, photography, wellness" />
-                </div>
-              </div>
-              <textarea id="notes" name="notes" placeholder="Any additional notes for Scout to know..." rows="4"></textarea>
-              <button class="primary-action" type="submit">Ask Scout to craft the profile</button>
-            </form>
-          </div>
-        </div>
-
-        <div class="section" style="margin-top: 32px;">
-          <div class="section-header">
-            <div>
-              <h3>Structured Travel Profile</h3>
-              <p>The output from Scout will appear here, ready to send to Explorer.</p>
-            </div>
-            <button class="secondary-btn" id="generate-itineraries">Send to Explorer</button>
-          </div>
-          <div class="panel" id="profile-output">
-            <p class="micro">No profile generated yet. Fill the Scout form and submit to see an intelligent travel profile.</p>
-          </div>
-        </div>
-
-        <div class="section" style="margin-top: 32px;">
-          <div class="section-header">
-            <div>
-              <h3>Explorer – Itinerary Concepts</h3>
-              <p>Explorer will create five itinerary cards for easy comparison and selection.</p>
-            </div>
-          </div>
-          <div class="cards-grid" id="itinerary-cards"></div>
-          <div id="explorer-status" class="alert hidden"></div>
-        </div>
-
-        <div class="section" style="margin-top: 32px;">
-          <div class="section-header">
-            <div>
-              <h3>Guardian – Review & Safety Summary</h3>
-              <p>Guardian analyzes your chosen itinerary and delivers a final verdict.</p>
-            </div>
-          </div>
-          <div class="panel" id="guardian-output">
-            <p class="micro">Select a trip from Explorer to request Guardian's analysis.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="page" id="saved">
-        <div class="section">
-          <div class="section-header">
-            <div>
-              <h3>Saved Trips & Feedback</h3>
-              <p>Trips, ratings, and feedback are stored locally for future planning sessions.</p>
-            </div>
-          </div>
-          <div class="saved-summary">
-            <div class="pill-tag">Saved trips: <strong id="saved-count">0</strong></div>
-            <div class="pill-tag">Feedback entries: <strong id="feedback-count">0</strong></div>
-          </div>
-          <div class="saved-trips" id="saved-trips-list"></div>
-        </div>
-      </section>
-
-      <section class="page" id="settings">
-        <div class="section">
-          <div class="section-header">
-            <div>
-              <h3>Settings</h3>
-              <p>Customize your experience and review the AI request helper in one place.</p>
-            </div>
-          </div>
-          <div class="settings-grid">
-            <div class="panel">
-              <div class="toggle-row">
-                <span>Dark mode</span>
-                <button id="theme-toggle" class="toggle-switch active" type="button" aria-label="Toggle dark mode"></button>
-              </div>
-              <p class="small-text">TripForge is optimized for a dark visual style with glowing forge-inspired accent colors.</p>
-            </div>
-            <div class="panel">
-              <h4>AI request helper</h4>
-              <p class="small-text">Every request uses the same endpoint with a reusable helper.</p>
-              <pre style="background: rgba(255,255,255,0.04); padding: 16px; border-radius: 18px; overflow-x: auto; font-size: 0.88rem; line-height: 1.55;">const apiHelper = async (messages) => {
-  const response = await fetch('https://vibe-proxy-gqv4.onrender.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: 'Bearer sk-vibe-summer-2026',
-    },
-    body: JSON.stringify({ model: 'class-chat-model', messages }),
-  });
-  return response.json();
-};</pre>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" style="margin-top: 38px;">
-        <div class="section-header">
-          <div>
-            <h3>Rate the agents</h3>
-            <p>Every agent has a dedicated rating form and feedback store.</p>
-          </div>
-        </div>
-        <div class="panel rating-row">
-          <div class="grid" style="display:grid; gap:20px;">
-            <div class="card">
-              <h4>Rate Scout</h4>
-              <p class="micro">Did Scout learn your goals clearly? Suggest improvements.</p>
-              <label for="scout-rating">Score</label>
-              <select id="scout-rating" class="full-width"><option value="5">★★★★★</option><option value="4">★★★★☆</option><option value="3">★★★☆☆</option><option value="2">★★☆☆☆</option><option value="1">★☆☆☆☆</option></select>
-              <label for="scout-comment">Feedback</label>
-              <textarea id="scout-comment" placeholder="How can Scout improve?" rows="4"></textarea>
-              <button class="primary-action" id="submit-scout-feedback">Submit Scout feedback</button>
-            </div>
-            <div class="card">
-              <h4>Rate Explorer</h4>
-              <p class="micro">Were the itinerary options inspiring and relevant?</p>
-              <label for="explorer-rating">Score</label>
-              <select id="explorer-rating" class="full-width"><option value="5">★★★★★</option><option value="4">★★★★☆</option><option value="3">★★★☆☆</option><option value="2">★★☆☆☆</option><option value="1">★☆☆☆☆</option></select>
-              <label for="explorer-comment">Feedback</label>
-              <textarea id="explorer-comment" placeholder="How can Explorer improve?" rows="4"></textarea>
-              <button class="primary-action" id="submit-explorer-feedback">Submit Explorer feedback</button>
-            </div>
-            <div class="card">
-              <h4>Rate Guardian</h4>
-              <p class="micro">Was the final review helpful, safe, and practical?</p>
-              <label for="guardian-rating">Score</label>
-              <select id="guardian-rating" class="full-width"><option value="5">★★★★★</option><option value="4">★★★★☆</option><option value="3">★★★☆☆</option><option value="2">★★☆☆☆</option><option value="1">★☆☆☆☆</option></select>
-              <label for="guardian-comment">Feedback</label>
-              <textarea id="guardian-comment" placeholder="How can Guardian improve?" rows="4"></textarea>
-              <button class="primary-action" id="submit-guardian-feedback">Submit Guardian feedback</button>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
+    </div>
+    <nav class="progress-tracker" aria-label="Trip planning progress">
+      <div class="progress-step active" id="track-step-1" role="status"><span class="dot" aria-hidden="true">1</span> Discovery</div>
+      <div class="progress-connector" aria-hidden="true"></div>
+      <div class="progress-step" id="track-step-2" role="status"><span class="dot" aria-hidden="true">2</span> Research</div>
+      <div class="progress-connector" aria-hidden="true"></div>
+      <div class="progress-step" id="track-step-3" role="status"><span class="dot" aria-hidden="true">3</span> Validation</div>
+    </nav>
   </div>
+</header>
 
-  <script>
-    const state = {
-      profile: null,
-      itineraries: [],
-      selectedItinerary: null,
-      feedback: loadFromStorage('tripforge-feedback') || [],
-      savedTrips: loadFromStorage('tripforge-saved-trips') || [],
-    };
+<main class="app-shell">
 
-    const pageButtons = document.querySelectorAll('[data-page]');
-    const pages = document.querySelectorAll('.page');
-    const profileOutput = document.getElementById('profile-output');
-    const itineraryCards = document.getElementById('itinerary-cards');
-    const guardianOutput = document.getElementById('guardian-output');
-    const explorerStatus = document.getElementById('explorer-status');
-    const savedCount = document.getElementById('saved-count');
-    const feedbackCount = document.getElementById('feedback-count');
-    const savedTripsList = document.getElementById('saved-trips-list');
-    const themeToggle = document.getElementById('theme-toggle');
-
-    function loadFromStorage(key) {
-      try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (error) { return null; }
-    }
-
-    function saveToStorage(key, value) {
-      localStorage.setItem(key, JSON.stringify(value));
-    }
-
-    function setActivePage(pageId) {
-      pages.forEach(page => page.classList.toggle('active', page.id === pageId));
-    }
-
-    pageButtons.forEach(button => {
-      button.addEventListener('click', () => setActivePage(button.dataset.page));
-    });
-
-    function updateSavedSummary() {
-      savedCount.textContent = state.savedTrips.length;
-      feedbackCount.textContent = state.feedback.length;
-      savedTripsList.innerHTML = state.savedTrips.length ? state.savedTrips.map((trip, idx) => `
-        <div class="card">
-          <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
-            <div>
-              <h4>${trip.name || 'Saved itinerary'}</h4>
-              <p class="small-text">${trip.description || 'Generated by TripForge'} • ${trip.date || 'No date'}</p>
-            </div>
-            <button type="button" style="border:none;background:rgba(255,255,255,0.08);color:var(--text);border-radius:14px;padding:8px 12px;cursor:pointer;" data-saved-index="${idx}">Delete</button>
-          </div>
-          <p>${trip.summary || 'No summary available.'}</p>
+  <!-- STAGE 1: DISCOVERY -->
+  <section class="stage active" id="stage-discovery" aria-labelledby="discovery-heading">
+    <h1 id="discovery-heading" class="visually-hidden">Travel Discovery Agent</h1>
+    <div class="agent-banner">
+      <div class="agent-avatar" id="discovery-avatar" aria-hidden="true">🧭</div>
+      <div class="agent-info">
+        <h2 class="agent-name">Discovery Agent</h2>
+        <div class="agent-status">
+          <span id="discovery-status-text">Ready to learn about your trip</span>
+          <span class="status-badge ready" id="discovery-badge">Listening</span>
         </div>
-      `).join('') : '<div class="alert">No saved trips yet. Select an itinerary and save it after Guardian review.</div>';
+      </div>
+    </div>
 
-      savedTripsList.querySelectorAll('[data-saved-index]').forEach(button => {
-        button.addEventListener('click', () => {
-          const index = Number(button.dataset['savedIndex']);
-          state.savedTrips.splice(index, 1);
-          saveToStorage('tripforge-saved-trips', state.savedTrips);
-          updateSavedSummary();
+    <div class="stage-layout">
+      <div class="glass-card chat-panel">
+        <div class="chat-log" id="chat-log" role="log" aria-live="polite" aria-label="Conversation with Discovery Agent"></div>
+        <div class="quick-replies" id="quick-replies" aria-label="Suggested quick replies"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="Type your answer…" aria-label="Your response">
+          <button class="btn btn-primary" id="chat-send-btn">Send</button>
+        </div>
+      </div>
+
+      <aside class="glass-card summary-card" aria-label="Trip summary">
+        <h3 class="summary-title">🗒️ Trip Summary</h3>
+        <div class="summary-progress-bar" aria-hidden="true"><div class="summary-progress-fill" id="summary-progress-fill" style="width:0%"></div></div>
+        <ul class="summary-list" id="summary-list"><li class="summary-empty">Nothing collected yet — start chatting with the Discovery Agent.</li></ul>
+        <div class="stage-controls" style="margin-top:20px;">
+          <button class="btn btn-ember" id="btn-to-research" disabled>Send to Research Agent →</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- STAGE 2: RESEARCH -->
+  <section class="stage" id="stage-research" aria-labelledby="research-heading">
+    <h1 id="research-heading" class="visually-hidden">Research Agent</h1>
+    <div class="agent-banner">
+      <div class="agent-avatar" id="research-avatar" aria-hidden="true">🔎</div>
+      <div class="agent-info">
+        <h2 class="agent-name">Research Agent</h2>
+        <div class="agent-status">
+          <span id="research-status-text">Waiting for trip brief</span>
+          <span class="status-badge" id="research-badge">Idle</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="research-loading" class="loading-overlay" hidden>
+      <div class="spinner-compass" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="28" stroke="#4C7754" stroke-width="3" opacity="0.3"/>
+          <path d="M32 8 L38 32 L32 56 L26 32 Z" fill="#8FA678"/>
+        </svg>
+      </div>
+      <p id="research-loading-text">Scanning thousands of sources…</p>
+      <p class="loading-sub">Weighing cost, safety, weather, and hidden gems</p>
+    </div>
+
+    <div id="research-content" hidden>
+      <div class="section-heading">
+        <h2>Three Trips, Crafted For You</h2>
+        <p>Each concept is built from your brief — pick the one that calls to you.</p>
+      </div>
+      <div class="trip-cards-grid" id="trip-cards-grid"></div>
+    </div>
+
+    <div class="stage-controls">
+      <button class="btn btn-ghost" id="btn-back-to-discovery">← Back to Discovery</button>
+    </div>
+  </section>
+
+  <!-- STAGE 3: VALIDATION -->
+  <section class="stage" id="stage-validation" aria-labelledby="validation-heading">
+    <h1 id="validation-heading" class="visually-hidden">Trip Validation & Guide Agent</h1>
+    <div class="agent-banner">
+      <div class="agent-avatar" id="validation-avatar" aria-hidden="true">🛡️</div>
+      <div class="agent-info">
+        <h2 class="agent-name">Validation &amp; Guide Agent</h2>
+        <div class="agent-status">
+          <span id="validation-status-text">Waiting for trip selection</span>
+          <span class="status-badge" id="validation-badge">Idle</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="validation-loading" class="loading-overlay" hidden>
+      <div class="spinner-compass" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="28" stroke="#4C7754" stroke-width="3" opacity="0.3"/>
+          <path d="M32 8 L38 32 L32 56 L26 32 Z" fill="#C97B4A"/>
+        </svg>
+      </div>
+      <p id="validation-loading-text">Cross-checking your preferences…</p>
+      <p class="loading-sub">Building itinerary, safety notes, and highlights</p>
+    </div>
+
+    <div id="validation-content" hidden>
+      <div class="match-hero">
+        <div class="match-ring" id="match-ring" style="--pct:0"><span class="match-ring-value" id="match-ring-value">0%</span></div>
+        <div class="match-hero-text">
+          <h3 id="validation-trip-title">Trip Match</h3>
+          <p id="validation-trip-summary">Overall fit between your preferences and this itinerary.</p>
+        </div>
+      </div>
+
+      <div class="score-grid" id="score-grid"></div>
+
+      <div class="glass-card" style="margin-bottom:24px;">
+        <h3 style="margin:0 0 14px;font-size:1.1rem;">Why This Trip Fits</h3>
+        <div class="fit-reasons" id="fit-reasons"></div>
+      </div>
+
+      <div class="accordion open" id="accordion-itinerary">
+        <div class="accordion-header" role="button" tabindex="0" aria-expanded="true">
+          <h3>🗺️ Day-by-Day Itinerary</h3>
+          <span class="accordion-chevron" aria-hidden="true">▾</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-body-inner" id="itinerary-body"></div></div>
+      </div>
+
+      <div class="accordion" id="accordion-safety">
+        <div class="accordion-header" role="button" tabindex="0" aria-expanded="false">
+          <h3>⚠️ Stay Safe</h3>
+          <span class="accordion-chevron" aria-hidden="true">▾</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-body-inner"><div class="safety-grid" id="safety-grid"></div></div></div>
+      </div>
+
+      <div class="accordion" id="accordion-enjoy">
+        <div class="accordion-header" role="button" tabindex="0" aria-expanded="false">
+          <h3>🌄 Make the Most of Your Trip</h3>
+          <span class="accordion-chevron" aria-hidden="true">▾</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-body-inner"><div class="enjoy-grid" id="enjoy-grid"></div></div></div>
+      </div>
+    </div>
+
+    <div class="stage-controls">
+      <button class="btn btn-ghost" id="btn-back-to-research">← Back to Research</button>
+      <button class="btn btn-primary" id="btn-restart">Plan a New Trip</button>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+<div class="modal-overlay" id="edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+  <div class="modal-box">
+    <h3 id="edit-modal-title">Edit Answer</h3>
+    <div class="modal-field">
+      <label for="edit-modal-input" id="edit-modal-label">Value</label>
+      <input type="text" id="edit-modal-input">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="edit-modal-cancel">Cancel</button>
+      <button class="btn btn-primary" id="edit-modal-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   TRIPFORGE — Multi-Agent AI Travel Planner
+   Single-file architecture. No build step, no frameworks.
+
+   MODULE MAP
+   -----------------------------------------------------------------
+   LLM_CONFIG            - Central place to plug in a real LLM provider.
+   LLMClient             - Thin wrapper that calls the configured provider.
+   StateManager          - Single source of truth for app state + pub/sub.
+   TravelDiscoveryAgent  - Interview flow (Agent 1).
+   ResearchAgent         - Generates 3 trip concepts (Agent 2).
+   ValidationAgent       - Scores + itinerary + safety/enjoyment (Agent 3).
+   TripManager           - Orchestrates the three agents + stage flow.
+   UIController          - All DOM rendering, split by stage.
+   AnimationManager      - Small reusable animation/utility helpers.
+   ToastManager          - Toast notifications.
+   ModalManager          - Edit-answer modal.
+   ================================================================ */
+
+(function(){
+  "use strict";
+
+  /* ==============================================================
+     1. LLM CONFIGURATION
+     Fill in your own endpoint + auth here. Nothing in this file
+     ships with real credentials — that's intentional. Until you
+     configure this, every agent below runs on high-quality mock
+     data so the whole app is fully usable out of the box.
+     ============================================================== */
+  const LLM_CONFIG = {
+    enabled: true,
+    endpoint: "https://vibe-proxy-gqv4.onrender.com/v1/chat/completions",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer sk-vibe-summer-2026"
+    },
+    model: "class-chat-model"
+  };
+
+  /* ==============================================================
+     2. LLM CLIENT
+     Thin, provider-agnostic wrapper. Every agent below calls
+     LLMClient.complete(prompt) — if LLM_CONFIG.enabled is false,
+     it resolves with null and the caller falls back to mock data.
+     Swap the fetch body/parsing to match whichever provider you
+     wire up in LLM_CONFIG.
+     ============================================================== */
+  const LLMClient = {
+    async complete(prompt, { system = "" } = {}) {
+      if (!LLM_CONFIG.enabled || !LLM_CONFIG.endpoint) return null;
+      try {
+        const res = await fetch(LLM_CONFIG.endpoint, {
+          method: "POST",
+          headers: LLM_CONFIG.headers,
+          body: JSON.stringify({
+            model: LLM_CONFIG.model,
+            messages: [
+              ...(system ? [{ role: "system", content: system }] : []),
+              { role: "user", content: prompt }
+            ]
+          })
         });
+        if (!res.ok) throw new Error("LLM request failed: " + res.status);
+        const data = await res.json();
+        // Adjust this extraction to match your provider's response shape.
+        return data?.choices?.[0]?.message?.content
+          ?? data?.content?.[0]?.text
+          ?? null;
+      } catch (err) {
+        console.warn("LLMClient.complete fell back to mock data:", err);
+        return null;
+      }
+    }
+  };
+
+  /* ==============================================================
+     3. STATE MANAGER
+     Single structured state object + simple pub/sub so UI code
+     never reaches into agent internals directly.
+     ============================================================== */
+  class StateManager {
+    constructor() {
+      this.state = {
+        stage: "discovery", // discovery | research | validation
+        traveler: {},        // free-form collected answers, keyed by field id
+        conversation: [],    // chat transcript for Agent 1
+        questionIndex: 0,
+        research: [],        // array of trip concepts from Agent 2
+        selectedTrip: null,  // the chosen concept object
+        validation: null     // output object from Agent 3
+      };
+      this.listeners = [];
+    }
+    get() { return this.state; }
+    update(patch) {
+      this.state = { ...this.state, ...patch };
+      this.listeners.forEach(fn => fn(this.state));
+    }
+    subscribe(fn) { this.listeners.push(fn); }
+  }
+
+  /* ==============================================================
+     4. FIELD DEFINITIONS — drives the Discovery interview + summary
+     ============================================================== */
+  const DISCOVERY_FIELDS = [
+    { id: "destinationIdeas", label: "Destination ideas", question: "Let's start broad — any destinations already on your mind? Or should I surprise you?", quick: ["Surprise me", "Mountains", "Coastal", "National parks"] },
+    { id: "travelers", label: "Who's traveling", question: "Who's coming along on this trip?", quick: ["Solo", "Couple", "Family", "Group of friends"] },
+    { id: "dates", label: "Travel dates", question: "Roughly when are you thinking of going, and how flexible are those dates?", quick: ["Very flexible", "Fixed 1 week in June", "Next 2 months", "Off-season, flexible"] },
+    { id: "budget", label: "Budget", question: "What's your budget like, per person or total — thrifty, mid-range, or splurge?", quick: ["Budget-friendly", "Mid-range", "Splurge / luxury"] },
+    { id: "pace", label: "Pace", question: "Do you want a packed, see-everything pace, or something slower and more relaxed?", quick: ["Fast-paced", "Balanced", "Slow & relaxed"] },
+    { id: "adventureLevel", label: "Adventure level", question: "How adventurous are you feeling — easy strolls, moderate hikes, or full expedition mode?", quick: ["Low-key", "Moderate hikes", "Full adventure"] },
+    { id: "outdoorInterests", label: "Outdoor interests", question: "What outdoor stuff excites you most — hiking, wildlife, water activities, photography?", quick: ["Hiking", "Wildlife", "Water & rivers", "Photography"] },
+    { id: "foodInterests", label: "Food interests", question: "How important is food on this trip, and any cuisines you're craving?", quick: ["Foodie priority", "Simple & local", "No preference"] },
+    { id: "accommodation", label: "Hotel preference", question: "Where do you want to sleep — cozy cabins, boutique hotels, or budget stays?", quick: ["Cabins/lodges", "Boutique hotels", "Budget stays", "Mix of both"] },
+    { id: "transportation", label: "Transportation", question: "How do you want to get around — road trip, flights between stops, or public transit?", quick: ["Road trip", "Flights", "Public transit", "Mix"] },
+    { id: "famousVsHidden", label: "Famous vs hidden gems", question: "Are you drawn more to famous bucket-list spots, or hidden gems off the beaten path?", quick: ["Famous spots", "Hidden gems", "A mix"] },
+    { id: "climate", label: "Climate preference", question: "Any climate you're aiming for — or avoiding? Warm, cool, dry, doesn't matter?", quick: ["Warm & sunny", "Cool & crisp", "No preference"] },
+    { id: "accessibility", label: "Accessibility needs", question: "Any accessibility needs I should plan around?", quick: ["None", "Limited walking distance", "Wheelchair access needed"] },
+    { id: "safetyConcerns", label: "Safety concerns", question: "Any specific safety concerns — wildlife, health conditions, traveling alone at night, etc.?", quick: ["None specific", "Wildlife caution", "Traveling solo, extra caution"] },
+    { id: "passport", label: "Passport / visa limits", question: "Any passport or visa limitations I should factor in?", quick: ["No restrictions", "Domestic only", "Visa-free countries only"] }
+  ];
+
+  /* ==============================================================
+     5. TRAVEL DISCOVERY AGENT
+     Drives the progressive interview. Falls back to a scripted
+     question list when no LLM is configured.
+     ============================================================== */
+  class TravelDiscoveryAgent {
+    constructor(stateManager) {
+      this.stateManager = stateManager;
+    }
+
+    getIntro() {
+      return "Hi! I'm your Discovery Agent 🧭 — think of me as your personal travel consultant. I'll ask a few questions to understand exactly the trip you're after. Ready?";
+    }
+
+    getNextQuestion() {
+      const { questionIndex } = this.stateManager.get();
+      if (questionIndex >= DISCOVERY_FIELDS.length) return null;
+      return DISCOVERY_FIELDS[questionIndex];
+    }
+
+    recordAnswer(fieldId, value) {
+      const { traveler, questionIndex } = this.stateManager.get();
+      this.stateManager.update({
+        traveler: { ...traveler, [fieldId]: value },
+        questionIndex: questionIndex + 1
       });
     }
 
-    function renderProfile() {
-      if (!state.profile) {
-        profileOutput.innerHTML = '<p class="micro">No profile generated yet. Fill the Scout form and submit to see an intelligent travel profile.</p>';
-        return;
+    isComplete() {
+      return this.stateManager.get().questionIndex >= DISCOVERY_FIELDS.length;
+    }
+
+    /**
+     * Placeholder async hook for a real LLM-driven interview.
+     * Resolves null (and caller falls back to the scripted question)
+     * when LLM_CONFIG.enabled is false.
+     */
+    async discoverTrip(conversationSoFar) {
+      const reply = await LLMClient.complete(
+        `Given this travel planning conversation so far: ${JSON.stringify(conversationSoFar)}, ask the single best next clarifying question.`,
+        { system: "You are an expert travel consultant conducting a discovery interview." }
+      );
+      return reply;
+    }
+  }
+
+  /* ==============================================================
+     6. RESEARCH AGENT
+     Produces three trip concepts from the traveler profile.
+     ============================================================== */
+  class ResearchAgent {
+    constructor(stateManager) {
+      this.stateManager = stateManager;
+    }
+
+    /** Placeholder async hook for real research via an LLM. */
+    async researchTrips(travelerProfile) {
+      const reply = await LLMClient.complete(
+        `Based on this traveler profile: ${JSON.stringify(travelerProfile)}, propose three distinct complete trip concepts as JSON.`,
+        { system: "You are a world-class travel researcher. Respond ONLY with valid JSON: an array of 3 trip concept objects." }
+      );
+      if (!reply) return null;
+      try { return JSON.parse(reply); } catch { return null; }
+    }
+
+    /** Deterministic mock generator, flavored by the traveler profile. */
+    buildMockConcepts(traveler) {
+      const wantsHidden = /hidden/i.test(traveler.famousVsHidden || "");
+      const wantsAdventure = /adventure|full/i.test(traveler.adventureLevel || "");
+      const wantsRelax = /slow|relax/i.test(traveler.pace || "");
+
+      const templates = [
+        {
+          title: "Beyond the Pines",
+          tagline: "Where the trees thin out and the sky finally opens.",
+          cost: "$$", costLabel: "Moderate · ~$1,450/person",
+          adventure: wantsAdventure ? 88 : 62, relaxation: wantsRelax ? 78 : 55,
+          safety: 90, nature: 95, walking: "Moderate", days: 7, season: "Late Spring"
+        },
+        {
+          title: "Whispers of the Mountains",
+          tagline: "Where silence has a texture, and every switchback tells a story.",
+          cost: "$$$", costLabel: "Premium · ~$2,300/person",
+          adventure: wantsAdventure ? 95 : 70, relaxation: wantsRelax ? 60 : 40,
+          safety: 82, nature: 98, walking: "High", days: 9, season: "Summer"
+        },
+        {
+          title: wantsHidden ? "Echoes Through the Valley" : "Trails of Tranquility",
+          tagline: wantsHidden
+            ? "The map runs out before the road does — that's the point."
+            : "A slower kind of unforgettable, one riverbank at a time.",
+          cost: "$", costLabel: "Budget-friendly · ~$980/person",
+          adventure: wantsAdventure ? 70 : 45, relaxation: wantsRelax ? 92 : 75,
+          safety: 88, nature: 90, walking: "Low", days: 5, season: "Early Autumn"
+        }
+      ];
+
+      return templates.map((t, i) => ({
+        id: "trip-" + (i + 1),
+        title: t.title,
+        tagline: t.tagline,
+        cost: t.costLabel,
+        costTier: t.cost,
+        ratings: { adventure: t.adventure, relaxation: t.relaxation, safety: t.safety, nature: t.nature },
+        walkingLevel: t.walking,
+        travelDays: t.days,
+        bestSeason: t.season
+      }));
+    }
+  }
+
+  /* ==============================================================
+     7. VALIDATION AGENT
+     Scores the selected trip against the traveler profile and
+     produces the itinerary, safety panel, and enjoyment panel.
+     ============================================================== */
+  class ValidationAgent {
+    constructor(stateManager) {
+      this.stateManager = stateManager;
+    }
+
+    /** Placeholder async hook for real validation via an LLM. */
+    async validateTrip(travelerProfile, selectedTrip) {
+      const reply = await LLMClient.complete(
+        `Traveler profile: ${JSON.stringify(travelerProfile)}. Selected trip: ${JSON.stringify(selectedTrip)}. Score the fit and explain why, as JSON.`,
+        { system: "You are a meticulous trip validation and safety reviewer. Respond ONLY with valid JSON." }
+      );
+      if (!reply) return null;
+      try { return JSON.parse(reply); } catch { return null; }
+    }
+
+    /** Placeholder async hook for real itinerary generation via an LLM. */
+    async generateItinerary(selectedTrip) {
+      const reply = await LLMClient.complete(
+        `Generate a detailed day-by-day itinerary for this trip: ${JSON.stringify(selectedTrip)} as JSON.`,
+        { system: "You are an expert local guide. Respond ONLY with valid JSON." }
+      );
+      if (!reply) return null;
+      try { return JSON.parse(reply); } catch { return null; }
+    }
+
+    /** Deterministic mock validation output. */
+    buildMockValidation(traveler, trip) {
+      const r = trip.ratings;
+      const overall = Math.round((r.adventure + r.relaxation + r.safety + r.nature) / 4);
+
+      const scores = {
+        overallMatch: overall,
+        budgetMatch: 84,
+        safetyScore: r.safety,
+        comfortScore: 100 - Math.round(r.adventure * 0.2),
+        adventureScore: r.adventure,
+        weatherSuitability: 90,
+        crowdLevel: /famous/i.test(traveler.famousVsHidden || "") ? 65 : 30,
+        transportDifficulty: trip.walkingLevel === "High" ? 55 : 25,
+        foodVariety: 80,
+        kidFriendly: /family/i.test(traveler.travelers || "") ? 85 : 55,
+        soloFriendly: /solo/i.test(traveler.travelers || "") ? 90 : 60,
+        accessibility: /none/i.test(traveler.accessibility || "") ? 80 : 45
+      };
+
+      const fitReasons = [
+        { icon: "🎯", text: `Matches your ${traveler.pace || "preferred"} pace with a ${trip.walkingLevel.toLowerCase()} walking level across ${trip.travelDays} days.` },
+        { icon: "💰", text: `Fits comfortably within a ${trip.cost.toLowerCase()} range, with buffer for spontaneous stops.` },
+        { icon: "🌤️", text: `Best visited in ${trip.bestSeason.toLowerCase()}, which aligns with typical availability and mild conditions.` },
+        { icon: "🥾", text: `Adventure rating of ${r.adventure} lines up with your stated interest in ${traveler.adventureLevel || "moderate activity"}.` }
+      ];
+
+      return {
+        scores,
+        fitReasons,
+        itinerary: this._buildItinerary(trip),
+        safety: this._buildSafety(trip),
+        enjoy: this._buildEnjoy(trip)
+      };
+    }
+
+    _buildItinerary(trip) {
+      const days = Math.min(trip.travelDays, 5);
+      const pool = [
+        { m: "Sunrise trailhead hike with layered valley views", a: "Riverside picnic near the old mill, then a slow wander through town", e: "Dinner at a family-run cabin restaurant, firelight and local wine" },
+        { m: "Scenic drive along the ridge road, stopping for photography at three overlooks", a: "Guided nature walk through old-growth forest", e: "Sunset viewpoint hike (short, easy) followed by stargazing" },
+        { m: "Kayaking or canoeing on the calm morning river", a: "Museum or heritage site visit, indoor and low-effort", e: "Local market food crawl — sample regional specialties" },
+        { m: "Rest morning — café, journaling, or a slow breakfast", a: "Moderate hike to a hidden waterfall, swimming optional", e: "Campfire storytelling or lodge lounge, early night" },
+        { m: "Wildlife-watching excursion at dawn (bring binoculars)", a: "Free time to explore town at your own pace", e: "Farewell dinner with a view, pack for departure" }
+      ];
+      const items = [];
+      for (let i = 0; i < days; i++) {
+        const p = pool[i % pool.length];
+        items.push({ day: i + 1, morning: p.m, afternoon: p.a, evening: p.e });
       }
-      profileOutput.innerHTML = `
-        <div class="cards-grid" style="grid-template-columns: repeat(auto-fit,minmax(240px,1fr));">
-          ${Object.entries(state.profile).map(([key, value]) => `
-            <div class="card">
-              <h4>${toTitleCase(key)}</h4>
-              <p>${escapeHtml(value || '—')}</p>
+      return items;
+    }
+
+    _buildSafety(trip) {
+      return [
+        { title: "Weather", text: `Expect ${trip.bestSeason.toLowerCase()} conditions — pack layers, as mountain weather can shift within hours.` },
+        { title: "Wildlife awareness", text: "Store food securely overnight and keep a respectful distance from any wildlife encountered on trails." },
+        { title: "Emergency contacts", text: "Save the local emergency number and nearest ranger station or clinic before setting out each day." },
+        { title: "Local laws", text: "Check permit requirements for trails or campsites — some areas require advance reservations." },
+        { title: "Scam awareness", text: "Book tours and transport through verified operators; avoid cash-only 'guides' approaching at trailheads." },
+        { title: "Night safety", text: "Stick to lit, populated areas after dark, especially in unfamiliar towns." },
+        { title: "Water safety", text: "Treat or filter water from natural sources; check current strength before swimming in rivers." },
+        { title: "Mountain safety", text: "Turn back before dusk on exposed trails; altitude can affect stamina faster than expected." },
+        { title: "Heat precautions", text: "Carry more water than you think you'll need on exposed, sun-heavy stretches." },
+        { title: "Cold precautions", text: "Evenings can drop sharply — a warm layer and dry socks make a real difference." },
+        { title: "Packing reminders", text: "Bring a basic first-aid kit, offline maps, and a charged power bank." },
+        { title: "Medical tips", text: "Note the nearest pharmacy and clinic for each overnight stop in advance." }
+      ];
+    }
+
+    _buildEnjoy(trip) {
+      return [
+        { title: "Best sunrise spot", text: "The eastern ridge overlook — arrive 20 minutes before sunrise for the best light." },
+        { title: "Hidden viewpoint", text: "A quiet ledge past the second switchback, easy to miss but worth the pause." },
+        { title: "Local food", text: "Ask at your lodging for the nearest family-run kitchen — usually better than the top search result." },
+        { title: "Photography tip", text: "Golden hour lasts longer at elevation — plan your best shots for the final 40 minutes of daylight." },
+        { title: "Rainy day plan", text: "The regional museum or a covered market make a cozy backup itinerary." },
+        { title: "Family activity", text: "Short interpretive nature trails near the visitor center are ideal for younger travelers." },
+        { title: "Solo activity", text: "A slow café morning followed by a self-guided walking loop — no schedule pressure." },
+        { title: "Couples activity", text: "A quiet lakeside spot for a shared picnic at golden hour." },
+        { title: "Best café", text: "Look for the one closest to the trailhead — locals tend to favor it over anything glossier." },
+        { title: "Picnic area", text: "Riverside benches past the old mill offer shade and a view." },
+        { title: "Sunset location", text: "The western overlook clears out by evening — bring a light layer." },
+        { title: "Souvenir idea", text: "Look for small-batch local goods at the weekend market rather than gift shops." }
+      ];
+    }
+  }
+
+  /* ==============================================================
+     8. TOAST MANAGER
+     ============================================================== */
+  class ToastManager {
+    constructor() { this.stack = document.getElementById("toast-stack"); }
+    show(message, type = "info", duration = 3200) {
+      const el = document.createElement("div");
+      el.className = "toast " + type;
+      el.setAttribute("role", "status");
+      el.textContent = message;
+      this.stack.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = "0";
+        el.style.transform = "translateX(30px)";
+        el.style.transition = "all .3s ease";
+        setTimeout(() => el.remove(), 280);
+      }, duration);
+    }
+  }
+
+  /* ==============================================================
+     9. MODAL MANAGER — edit a single trip-summary field
+     ============================================================== */
+  class ModalManager {
+    constructor(onSave) {
+      this.overlay = document.getElementById("edit-modal");
+      this.input = document.getElementById("edit-modal-input");
+      this.label = document.getElementById("edit-modal-label");
+      this.title = document.getElementById("edit-modal-title");
+      this.onSave = onSave;
+      this.currentFieldId = null;
+
+      document.getElementById("edit-modal-cancel").addEventListener("click", () => this.close());
+      document.getElementById("edit-modal-save").addEventListener("click", () => this._save());
+      this.overlay.addEventListener("click", (e) => { if (e.target === this.overlay) this.close(); });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && this.overlay.classList.contains("open")) this.close();
+      });
+    }
+    open(fieldId, fieldLabel, currentValue) {
+      this.currentFieldId = fieldId;
+      this.title.textContent = "Edit: " + fieldLabel;
+      this.label.textContent = fieldLabel;
+      this.input.value = currentValue || "";
+      this.overlay.classList.add("open");
+      this.input.focus();
+    }
+    close() { this.overlay.classList.remove("open"); this.currentFieldId = null; }
+    _save() {
+      if (this.currentFieldId) this.onSave(this.currentFieldId, this.input.value.trim());
+      this.close();
+    }
+  }
+
+  /* ==============================================================
+     10. ANIMATION MANAGER — small reusable helpers
+     ============================================================== */
+  const AnimationManager = {
+    animateBars(container) {
+      requestAnimationFrame(() => {
+        container.querySelectorAll(".rating-bar-fill[data-target]").forEach(bar => {
+          bar.style.width = bar.getAttribute("data-target") + "%";
+        });
+      });
+    },
+    animateRing(ringEl, valueEl, target) {
+      let current = 0;
+      const step = Math.max(1, Math.round(target / 40));
+      const tick = () => {
+        current = Math.min(target, current + step);
+        ringEl.style.setProperty("--pct", current);
+        valueEl.textContent = current + "%";
+        if (current < target) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+  };
+
+  /* ==============================================================
+     11. UI CONTROLLER
+     Owns all DOM writes, organized by stage. Uses event delegation
+     where practical and caches frequently used elements.
+     ============================================================== */
+  class UIController {
+    constructor({ stateManager, discoveryAgent, researchAgent, validationAgent, toast, modal }) {
+      this.sm = stateManager;
+      this.discoveryAgent = discoveryAgent;
+      this.researchAgent = researchAgent;
+      this.validationAgent = validationAgent;
+      this.toast = toast;
+      this.modal = modal;
+
+      this.el = {
+        chatLog: document.getElementById("chat-log"),
+        quickReplies: document.getElementById("quick-replies"),
+        chatInput: document.getElementById("chat-input"),
+        chatSendBtn: document.getElementById("chat-send-btn"),
+        summaryList: document.getElementById("summary-list"),
+        summaryProgressFill: document.getElementById("summary-progress-fill"),
+        btnToResearch: document.getElementById("btn-to-research"),
+
+        stageDiscovery: document.getElementById("stage-discovery"),
+        stageResearch: document.getElementById("stage-research"),
+        stageValidation: document.getElementById("stage-validation"),
+
+        trackStep1: document.getElementById("track-step-1"),
+        trackStep2: document.getElementById("track-step-2"),
+        trackStep3: document.getElementById("track-step-3"),
+
+        researchLoading: document.getElementById("research-loading"),
+        researchContent: document.getElementById("research-content"),
+        tripCardsGrid: document.getElementById("trip-cards-grid"),
+        researchStatusText: document.getElementById("research-status-text"),
+        researchBadge: document.getElementById("research-badge"),
+        researchAvatar: document.getElementById("research-avatar"),
+
+        validationLoading: document.getElementById("validation-loading"),
+        validationContent: document.getElementById("validation-content"),
+        validationStatusText: document.getElementById("validation-status-text"),
+        validationBadge: document.getElementById("validation-badge"),
+        validationAvatar: document.getElementById("validation-avatar"),
+        matchRing: document.getElementById("match-ring"),
+        matchRingValue: document.getElementById("match-ring-value"),
+        validationTripTitle: document.getElementById("validation-trip-title"),
+        validationTripSummary: document.getElementById("validation-trip-summary"),
+        scoreGrid: document.getElementById("score-grid"),
+        fitReasons: document.getElementById("fit-reasons"),
+        itineraryBody: document.getElementById("itinerary-body"),
+        safetyGrid: document.getElementById("safety-grid"),
+        enjoyGrid: document.getElementById("enjoy-grid"),
+
+        btnBackToDiscovery: document.getElementById("btn-back-to-discovery"),
+        btnBackToResearch: document.getElementById("btn-back-to-research"),
+        btnRestart: document.getElementById("btn-restart")
+      };
+
+      this._bindStaticEvents();
+    }
+
+    showStage(stageName) {
+      [this.el.stageDiscovery, this.el.stageResearch, this.el.stageValidation].forEach(s => s.classList.remove("active"));
+      const map = { discovery: this.el.stageDiscovery, research: this.el.stageResearch, validation: this.el.stageValidation };
+      map[stageName].classList.add("active");
+      map[stageName].scrollIntoView({ behavior: "smooth", block: "start" });
+
+      [this.el.trackStep1, this.el.trackStep2, this.el.trackStep3].forEach(s => s.classList.remove("active", "done"));
+      const order = ["discovery", "research", "validation"];
+      const idx = order.indexOf(stageName);
+      order.forEach((name, i) => {
+        const stepEl = [this.el.trackStep1, this.el.trackStep2, this.el.trackStep3][i];
+        if (i < idx) stepEl.classList.add("done");
+        else if (i === idx) stepEl.classList.add("active");
+      });
+
+      this.sm.update({ stage: stageName });
+    }
+
+    appendMessage(role, text) {
+      const wrap = document.createElement("div");
+      wrap.className = "msg " + role;
+      wrap.innerHTML = `
+        <div class="msg-avatar" aria-hidden="true">${role === "agent" ? "🧭" : "🙂"}</div>
+        <div class="msg-bubble"></div>
+      `;
+      wrap.querySelector(".msg-bubble").textContent = text;
+      this.el.chatLog.appendChild(wrap);
+      this.el.chatLog.scrollTop = this.el.chatLog.scrollHeight;
+    }
+
+    showTypingIndicator() {
+      const wrap = document.createElement("div");
+      wrap.className = "msg agent";
+      wrap.id = "typing-indicator-msg";
+      wrap.innerHTML = `
+        <div class="msg-avatar" aria-hidden="true">🧭</div>
+        <div class="msg-bubble"><span class="typing-dots"><span></span><span></span><span></span></span></div>
+      `;
+      this.el.chatLog.appendChild(wrap);
+      this.el.chatLog.scrollTop = this.el.chatLog.scrollHeight;
+    }
+    removeTypingIndicator() {
+      const el = document.getElementById("typing-indicator-msg");
+      if (el) el.remove();
+    }
+
+    renderQuickReplies(options) {
+      this.el.quickReplies.innerHTML = "";
+      (options || []).forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "quick-reply";
+        btn.type = "button";
+        btn.textContent = opt;
+        this.el.quickReplies.appendChild(btn);
+      });
+    }
+
+    renderSummary() {
+      const { traveler } = this.sm.get();
+      const answered = DISCOVERY_FIELDS.filter(f => traveler[f.id]);
+      const pct = Math.round((answered.length / DISCOVERY_FIELDS.length) * 100);
+      this.el.summaryProgressFill.style.width = pct + "%";
+
+      if (answered.length === 0) {
+        this.el.summaryList.innerHTML = '<li class="summary-empty">Nothing collected yet — start chatting with the Discovery Agent.</li>';
+      } else {
+        this.el.summaryList.innerHTML = "";
+        answered.forEach(f => {
+          const li = document.createElement("li");
+          li.className = "summary-item";
+          li.innerHTML = `
+            <span class="summary-label">${f.label}</span>
+            <span style="text-align:right;">
+              <span class="summary-value">${this._escape(traveler[f.id])}</span><br>
+              <button class="summary-edit" data-field-id="${f.id}" data-field-label="${f.label}">edit</button>
+            </span>
+          `;
+          this.el.summaryList.appendChild(li);
+        });
+      }
+      this.el.btnToResearch.disabled = !this.discoveryAgent.isComplete();
+    }
+
+    _escape(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    renderTripCards(concepts) {
+      this.el.tripCardsGrid.innerHTML = "";
+      concepts.forEach(trip => {
+        const card = document.createElement("article");
+        card.className = "trip-card";
+        card.innerHTML = `
+          <div class="trip-card-header">
+            <h3 class="trip-card-title">${this._escape(trip.title)}</h3>
+            <p class="trip-card-tagline">${this._escape(trip.tagline)}</p>
+          </div>
+          <div class="trip-card-body">
+            <span class="cost-badge">💰 ${this._escape(trip.cost)}</span>
+            <div class="rating-group">
+              ${this._ratingRow("Adventure", trip.ratings.adventure)}
+              ${this._ratingRow("Relaxation", trip.ratings.relaxation)}
+              ${this._ratingRow("Safety", trip.ratings.safety)}
+              ${this._ratingRow("Nature", trip.ratings.nature)}
             </div>
-          `).join('')}
+            <div class="trip-meta-grid">
+              <div><span>Walking Level</span>${this._escape(trip.walkingLevel)}</div>
+              <div><span>Travel Days</span>${trip.travelDays} days</div>
+              <div><span>Best Season</span>${this._escape(trip.bestSeason)}</div>
+            </div>
+          </div>
+          <div class="trip-card-footer">
+            <button class="btn btn-primary" data-trip-id="${trip.id}">Explore This Trip →</button>
+          </div>
+        `;
+        this.el.tripCardsGrid.appendChild(card);
+      });
+      AnimationManager.animateBars(this.el.tripCardsGrid);
+    }
+    _ratingRow(label, value) {
+      return `
+        <div class="rating-row">
+          <span class="rating-label">${label}</span>
+          <div class="rating-bar-track"><div class="rating-bar-fill" data-target="${value}" style="width:0%"></div></div>
+          <span style="font-size:0.75rem;color:var(--trail);width:28px;text-align:right;">${value}</span>
         </div>
       `;
     }
 
-    function renderItineraries() {
-      if (!state.itineraries.length) {
-        itineraryCards.innerHTML = '<div class="alert">Explorer has not generated itinerary ideas yet. Send the travel profile first.</div>';
-        return;
-      }
-      itineraryCards.innerHTML = state.itineraries.map((trip, index) => `
-        <div class="card">
-          <div style="display:flex; justify-content:space-between; align-items:start; gap:12px;">
-            <div>
-              <h4>${escapeHtml(trip.name)}</h4>
-              <div class="tag accent">${escapeHtml(trip.bestSeason || trip.duration || 'Premium plan')}</div>
-            </div>
-            <span class="tag">${escapeHtml(trip.estimate)}</span>
-          </div>
-          <p>${escapeHtml(trip.summary)}</p>
-          <div class="badge-row">
-            <span class="badge">${escapeHtml(trip.difficulty)}</span>
-            <span class="badge">${escapeHtml(trip.walkingLevel)}</span>
-            <span class="badge">${escapeHtml(trip.crowdLevel)}</span>
-          </div>
-          <div class="card-list">
-            <div><span>Main attractions</span><strong>${escapeHtml(trip.mainAttractions)}</strong></div>
-            <div><span>Transportation</span><strong>${escapeHtml(trip.transportation)}</strong></div>
-            <div><span>Why it matches</span><strong>${escapeHtml(trip.matchReason)}</strong></div>
-          </div>
-          <button class="primary-action" data-select-index="${index}">Choose Trip</button>
-        </div>
-      `).join('');
+    renderValidation(trip, result) {
+      this.el.validationTripTitle.textContent = trip.title + " — Trip Match";
+      this.el.validationTripSummary.textContent =
+        `An overall look at how well "${trip.title}" lines up with what you told the Discovery Agent.`;
 
-      itineraryCards.querySelectorAll('[data-select-index]').forEach(button => {
-        button.addEventListener('click', () => {
-          const idx = Number(button.dataset.selectIndex);
-          state.selectedItinerary = state.itineraries[idx];
-          requestGuardianAnalysis();
-        });
-      });
-    }
+      AnimationManager.animateRing(this.el.matchRing, this.el.matchRingValue, result.scores.overallMatch);
 
-    function renderGuardian(output) {
-      guardianOutput.innerHTML = output ? `<div class="stack"><div class="badge-row"><span class="badge">Match Score</span><span class="badge">Safety</span><span class="badge">Checklist</span></div><div>${output}</div></div>` : '<p class="micro">Select a trip from Explorer to request Guardian analysis.</p>';
-    }
-
-    function toTitleCase(key) {
-      return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).replace(/_/g, ' ');
-    }
-
-    function escapeHtml(text) {
-      if (!text) return '';
-      return String(text).replace(/[&<>"']/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[tag]));
-    }
-
-    const form = document.getElementById('scout-form');
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const data = new FormData(form);
-      const profile = {
-        destination: data.get('destination'),
-        budget: data.get('budget'),
-        dates: data.get('dates'),
-        tripLength: data.get('tripLength'),
-        travelers: data.get('travelers'),
-        style: data.get('style'),
-        interests: data.get('interests'),
-        accommodations: data.get('accommodations'),
-        transportation: data.get('transport'),
-        foodPreferences: data.get('foodPrefs'),
-        accessibility: data.get('accessibility'),
-        specialRequests: data.get('specialRequests'),
-        notes: data.get('notes'),
+      const scoreLabels = {
+        budgetMatch: "Budget Match", safetyScore: "Safety", comfortScore: "Comfort",
+        adventureScore: "Adventure", weatherSuitability: "Weather Fit", crowdLevel: "Crowd Level",
+        transportDifficulty: "Transport Difficulty", foodVariety: "Food Variety",
+        kidFriendly: "Kid Friendly", soloFriendly: "Solo Friendly", accessibility: "Accessibility"
       };
-      state.profile = profile;
-      renderProfile();
-      explorerStatus.classList.add('hidden');
-      state.itineraries = [];
-      renderItineraries();
-      guardianOutput.innerHTML = '<p class="micro">Select a trip from Explorer to request Guardian analysis.</p>';
-      document.querySelector('#generate-itineraries').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
+      this.el.scoreGrid.innerHTML = Object.entries(scoreLabels).map(([key, label]) => `
+        <div class="score-tile">
+          <div class="score-tile-value">${result.scores[key]}%</div>
+          <div class="score-tile-label">${label}</div>
+        </div>
+      `).join("");
 
-    document.getElementById('generate-itineraries').addEventListener('click', async () => {
-      if (!state.profile) {
-        explorerStatus.textContent = 'Please generate a travel profile with Scout before requesting itineraries.';
-        explorerStatus.classList.remove('hidden');
+      this.el.fitReasons.innerHTML = result.fitReasons.map(r => `
+        <div class="fit-reason">
+          <span class="fit-reason-icon" aria-hidden="true">${r.icon}</span>
+          <span>${this._escape(r.text)}</span>
+        </div>
+      `).join("");
+
+      this.el.itineraryBody.innerHTML = result.itinerary.map(day => `
+        <div class="day-block">
+          <h4 class="day-title"><span class="day-num">${day.day}</span> Day ${day.day}</h4>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-period">Morning</div>
+              <div class="timeline-content">${this._escape(day.morning)}</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-period">Afternoon</div>
+              <div class="timeline-content">${this._escape(day.afternoon)}</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-period">Evening</div>
+              <div class="timeline-content">${this._escape(day.evening)}</div>
+            </div>
+          </div>
+        </div>
+      `).join("");
+
+      this.el.safetyGrid.innerHTML = result.safety.map(s => `
+        <div class="safety-alert">
+          <strong>${this._escape(s.title)}</strong>
+          ${this._escape(s.text)}
+        </div>
+      `).join("");
+
+      this.el.enjoyGrid.innerHTML = result.enjoy.map(s => `
+        <div class="enjoy-item">
+          <strong>${this._escape(s.title)}</strong>
+          ${this._escape(s.text)}
+        </div>
+      `).join("");
+    }
+
+    _bindStaticEvents() {
+      this.el.chatSendBtn.addEventListener("click", () => this._onChatSubmit());
+      this.el.chatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") this._onChatSubmit(); });
+
+      this.el.quickReplies.addEventListener("click", (e) => {
+        const btn = e.target.closest(".quick-reply");
+        if (!btn) return;
+        this.el.chatInput.value = btn.textContent;
+        this._onChatSubmit();
+      });
+
+      this.el.summaryList.addEventListener("click", (e) => {
+        const btn = e.target.closest(".summary-edit");
+        if (!btn) return;
+        const fieldId = btn.getAttribute("data-field-id");
+        const fieldLabel = btn.getAttribute("data-field-label");
+        const currentValue = this.sm.get().traveler[fieldId];
+        this.modal.open(fieldId, fieldLabel, currentValue);
+      });
+
+      this.el.tripCardsGrid.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-trip-id]");
+        if (!btn) return;
+        this._onSelectTrip(btn.getAttribute("data-trip-id"));
+      });
+
+      document.addEventListener("click", (e) => {
+        const header = e.target.closest(".accordion-header");
+        if (!header) return;
+        const accordion = header.closest(".accordion");
+        const isOpen = accordion.classList.toggle("open");
+        header.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        const header = e.target.closest(".accordion-header");
+        if (!header) return;
+        e.preventDefault();
+        header.click();
+      });
+
+      this.el.btnToResearch.addEventListener("click", () => this.onGoToResearch && this.onGoToResearch());
+      this.el.btnBackToDiscovery.addEventListener("click", () => this.showStage("discovery"));
+      this.el.btnBackToResearch.addEventListener("click", () => this.showStage("research"));
+      this.el.btnRestart.addEventListener("click", () => this.onRestart && this.onRestart());
+    }
+
+    _onChatSubmit() {
+      const value = this.el.chatInput.value.trim();
+      if (!value) return;
+      this.el.chatInput.value = "";
+      this.onUserAnswer && this.onUserAnswer(value);
+    }
+
+    _onSelectTrip(tripId) { this.onSelectTrip && this.onSelectTrip(tripId); }
+  }
+
+  /* ==============================================================
+     12. TRIP MANAGER
+     Orchestrates the three agents and wires them to the UI.
+     ============================================================== */
+  class TripManager {
+    constructor() {
+      this.stateManager = new StateManager();
+      this.discoveryAgent = new TravelDiscoveryAgent(this.stateManager);
+      this.researchAgent = new ResearchAgent(this.stateManager);
+      this.validationAgent = new ValidationAgent(this.stateManager);
+      this.toast = new ToastManager();
+      this.modal = new ModalManager((fieldId, value) => this._onEditSave(fieldId, value));
+
+      this.ui = new UIController({
+        stateManager: this.stateManager,
+        discoveryAgent: this.discoveryAgent,
+        researchAgent: this.researchAgent,
+        validationAgent: this.validationAgent,
+        toast: this.toast,
+        modal: this.modal
+      });
+
+      this.ui.onUserAnswer = (value) => this._handleUserAnswer(value);
+      this.ui.onGoToResearch = () => this._runResearchStage();
+      this.ui.onSelectTrip = (tripId) => this._runValidationStage(tripId);
+      this.ui.onRestart = () => this._restart();
+    }
+
+    init() {
+      this.ui.appendMessage("agent", this.discoveryAgent.getIntro());
+      this._askNextQuestion();
+    }
+
+    _askNextQuestion() {
+      const field = this.discoveryAgent.getNextQuestion();
+      if (!field) {
+        this.ui.appendMessage("agent", "That's everything I need! Review your Trip Summary on the right, edit anything you like, then send it to the Research Agent.");
+        this.ui.renderQuickReplies([]);
+        this.ui.renderSummary();
         return;
       }
-      explorerStatus.textContent = 'Explorer is crafting five itinerary concepts...';
-      explorerStatus.classList.remove('hidden');
-      try {
-        const itineraryOutput = await requestExplorerOptions(state.profile);
-        state.itineraries = itineraryOutput;
-        renderItineraries();
-        explorerStatus.textContent = 'Explorer delivered five itinerary concepts. Choose one to continue.';
-      } catch (error) {
-        explorerStatus.textContent = 'Unable to generate itineraries right now. Please try again later.';
-      }
-    });
+      this.ui.showTypingIndicator();
+      setTimeout(() => {
+        this.ui.removeTypingIndicator();
+        this.ui.appendMessage("agent", field.question);
+        this.ui.renderQuickReplies(field.quick);
+      }, 550);
+    }
 
-    function createApiHelper(messages) {
-      return fetch('https://vibe-proxy-gqv4.onrender.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer sk-vibe-summer-2026',
-        },
-        body: JSON.stringify({ model: 'class-chat-model', messages }),
-      })
-      .then(async res => {
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(errorText || 'Network error');
-        }
-        return res.json();
+    async _handleUserAnswer(value) {
+      const field = this.discoveryAgent.getNextQuestion();
+      if (!field) return;
+      this.ui.appendMessage("user", value);
+      this.ui.renderQuickReplies([]);
+      this.discoveryAgent.recordAnswer(field.id, value);
+      this.ui.renderSummary();
+
+      // Placeholder hook: a real LLM could generate a smarter follow-up
+      // question here instead of pulling the next scripted field.
+      await this.discoveryAgent.discoverTrip(this.stateManager.get().traveler);
+
+      this._askNextQuestion();
+    }
+
+    _onEditSave(fieldId, value) {
+      if (!value) return;
+      const { traveler } = this.stateManager.get();
+      this.stateManager.update({ traveler: { ...traveler, [fieldId]: value } });
+      this.ui.renderSummary();
+      this.toast.show("Updated your answer", "success");
+    }
+
+    async _runResearchStage() {
+      this.ui.showStage("research");
+      this.ui.el.researchLoading.hidden = false;
+      this.ui.el.researchContent.hidden = true;
+      this.ui.el.researchStatusText.textContent = "Scanning sources and comparing options…";
+      this.ui.el.researchBadge.textContent = "Researching";
+      this.ui.el.researchAvatar.classList.add("thinking");
+
+      const traveler = this.stateManager.get().traveler;
+
+      let concepts = await this.researchAgent.researchTrips(traveler);
+      if (!concepts) concepts = this.researchAgent.buildMockConcepts(traveler);
+
+      await this._wait(1400);
+
+      this.stateManager.update({ research: concepts });
+      this.ui.el.researchLoading.hidden = true;
+      this.ui.el.researchContent.hidden = false;
+      this.ui.el.researchStatusText.textContent = "Three trip concepts ready for review";
+      this.ui.el.researchBadge.textContent = "Ready";
+      this.ui.el.researchBadge.classList.add("ready");
+      this.ui.el.researchAvatar.classList.remove("thinking");
+      this.ui.renderTripCards(concepts);
+      this.toast.show("Research complete — three trips ready", "success");
+    }
+
+    async _runValidationStage(tripId) {
+      const { research, traveler } = this.stateManager.get();
+      const trip = research.find(t => t.id === tripId);
+      if (!trip) return;
+      this.stateManager.update({ selectedTrip: trip });
+
+      this.ui.showStage("validation");
+      this.ui.el.validationLoading.hidden = false;
+      this.ui.el.validationContent.hidden = true;
+      this.ui.el.validationStatusText.textContent = "Cross-checking preferences and building your guide…";
+      this.ui.el.validationBadge.textContent = "Validating";
+      this.ui.el.validationAvatar.classList.add("thinking");
+
+      let validationResult = await this.validationAgent.validateTrip(traveler, trip);
+      let itinerary = validationResult ? validationResult.itinerary : await this.validationAgent.generateItinerary(trip);
+
+      let result;
+      if (validationResult && itinerary) {
+        result = { ...validationResult, itinerary };
+      } else {
+        result = this.validationAgent.buildMockValidation(traveler, trip);
+      }
+
+      await this._wait(1300);
+
+      this.stateManager.update({ validation: result });
+      this.ui.el.validationLoading.hidden = true;
+      this.ui.el.validationContent.hidden = false;
+      this.ui.el.validationStatusText.textContent = "Validation complete — guide ready";
+      this.ui.el.validationBadge.textContent = "Ready";
+      this.ui.el.validationBadge.classList.add("ready");
+      this.ui.el.validationAvatar.classList.remove("thinking");
+      this.ui.renderValidation(trip, result);
+      this.toast.show("Your trip guide is ready", "success");
+    }
+
+    _restart() {
+      this.stateManager.update({
+        stage: "discovery", traveler: {}, conversation: [], questionIndex: 0,
+        research: [], selectedTrip: null, validation: null
       });
+      this.ui.el.chatLog.innerHTML = "";
+      this.ui.el.researchContent.hidden = true;
+      this.ui.el.researchBadge.classList.remove("ready");
+      this.ui.el.researchBadge.textContent = "Idle";
+      this.ui.el.researchStatusText.textContent = "Waiting for trip brief";
+      this.ui.el.validationContent.hidden = true;
+      this.ui.el.validationBadge.classList.remove("ready");
+      this.ui.el.validationBadge.textContent = "Idle";
+      this.ui.el.validationStatusText.textContent = "Waiting for trip selection";
+      this.ui.showStage("discovery");
+      this.ui.renderSummary();
+      this.init();
     }
 
-    async function requestExplorerOptions(profile) {
-      const prompt = `You are Explorer. Given this travel profile, generate exactly five distinct itinerary options as JSON. Include keys: name, estimate, duration, summary, mainAttractions, activities, difficulty, walkingLevel, crowdLevel, bestSeason, transportation, pros, cons, matchReason.`;
-      const profileText = JSON.stringify(profile, null, 2);
-      const messages = [
-        { role: 'user', content: `${prompt}\n\nTravel profile:\n${profileText}` }
-      ];
-      const response = await createApiHelper(messages);
-      const text = response?.choices?.[0]?.message?.content || '';
-      const parsed = parseItinerariesJson(text);
-      if (!parsed.length) {
-        return generateMockItineraries(profile);
-      }
-      return parsed;
-    }
+    _wait(ms) { return new Promise(res => setTimeout(res, ms)); }
+  }
 
-    async function requestGuardianAnalysis() {
-      if (!state.selectedItinerary) return;
-      guardianOutput.innerHTML = '<div class="alert">Guardian is reviewing the selected itinerary...</div>';
-      const prompt = `You are Guardian. Analyze this itinerary in detail, then output a Markdown summary with match score, safety, planning tips, packing checklist, hidden gems, possible risks, and final verdict.`;
-      const messages = [
-        { role: 'user', content: `${prompt}\n\nSelected itinerary:\n${JSON.stringify(state.selectedItinerary, null, 2)}\n\nTravel profile:\n${JSON.stringify(state.profile, null, 2)}` }
-      ];
-      try {
-        const response = await createApiHelper(messages);
-        const analysis = response?.choices?.[0]?.message?.content || '';
-        renderGuardian(formatMarkdown(analysis));
-      } catch (error) {
-        renderGuardian('<div class="alert">Guardian could not complete the review. Try again later.</div>');
-      }
-    }
+  /* ==============================================================
+     13. BOOTSTRAP
+     ============================================================== */
+  document.addEventListener("DOMContentLoaded", () => {
+    const app = new TripManager();
+    app.init();
+    window.__tripforge = app; // exposed for debugging / future extension only
+  });
 
-    function parseItinerariesJson(content) {
-      try {
-        const jsonStart = content.indexOf('{');
-        const cleaned = jsonStart >= 0 ? content.slice(jsonStart) : content;
-        const data = JSON.parse(cleaned);
-        if (Array.isArray(data)) return data;
-        if (data.itineraries && Array.isArray(data.itineraries)) return data.itineraries;
-      } catch (error) {
-        return [];
-      }
-      return [];
-    }
-
-    function formatMarkdown(markdown = '') {
-      const lines = markdown.split('\n').map(line => {
-        if (line.trim().startsWith('#')) return `<strong style="display:block;margin-top:1.1rem;">${escapeHtml(line.replace(/^#+\s*/, ''))}</strong>`;
-        if (line.trim().startsWith('-')) return `<div style="display:flex; gap:8px; align-items:flex-start;"><span style="color:#ffb347;">•</span><p style="margin:0; color:var(--muted);">${escapeHtml(line.replace(/^-\s*/, ''))}</p></div>`;
-        return `<p style="margin:0.55rem 0; color:var(--muted);">${escapeHtml(line)}</p>`;
-      });
-      return lines.join('');
-    }
-
-    function generateMockItineraries(profile) {
-      const top = profile.destination || 'your destination';
-      return [
-        {
-          name: `Signature ${top} Discovery`,
-          estimate: `${profile.budget || '$4,200'} total`,
-          duration: profile.tripLength || '7 days',
-          summary: `A premium balanced journey focused on culture, food, and landmark experiences in ${top}.`,
-          mainAttractions: 'Iconic landmarks, museums, food markets',
-          activities: 'City tours, tasting sessions, scenic walks',
-          difficulty: 'Moderate',
-          walkingLevel: 'Medium',
-          crowdLevel: 'Medium',
-          bestSeason: 'Early fall',
-          transportation: 'Train, rideshare, walking',
-          pros: 'Well-rounded, great food and comfort. Ideal for first-time visitors.',
-          cons: 'Not the cheapest option.',
-          matchReason: 'Matches your travel style and interest in local food and culture.',
-        },
-        {
-          name: `Adventure Forge`,
-          estimate: `${profile.budget || '$3,800'} total`,
-          duration: profile.tripLength || '7 days',
-          summary: `An active route with top hikes, outdoor viewpoints, and immersive local adventures.`,
-          mainAttractions: 'Nature trails, markets, scenic overlooks',
-          activities: 'Hiking, river cruises, photography sessions',
-          difficulty: 'High',
-          walkingLevel: 'High',
-          crowdLevel: 'Low',
-          bestSeason: 'Spring',
-          transportation: 'Rental car, local buses',
-          pros: 'Packed with adventure and memorable scenery.',
-          cons: 'Requires good fitness and energy.',
-          matchReason: 'For travelers seeking active and engaging days.',
-        },
-        {
-          name: `Cultured Comfort`,
-          estimate: `${profile.budget || '$4,000'} total`,
-          duration: profile.tripLength || '7 days',
-          summary: `A refined itinerary blending history, food, and relaxed evenings in premium accommodations.`,
-          mainAttractions: 'Historic districts, galleries, fine dining',
-          activities: 'Walking tours, tastings, museum visits',
-          difficulty: 'Easy',
-          walkingLevel: 'Low',
-          crowdLevel: 'High',
-          bestSeason: 'Late spring',
-          transportation: 'Private shuttles, tram',
-          pros: 'Comfort-first with strong cultural immersion.',
-          cons: 'Less outdoor adventure than other options.',
-          matchReason: 'Perfect for travelers who want culture without rush.',
-        },
-        {
-          name: `Local Flavor Circuit`,
-          estimate: `${profile.budget || '$3,600'} total`,
-          duration: profile.tripLength || '7 days',
-          summary: `A culinary first itinerary with local food, hidden cafes, and neighborhood discoveries.`,
-          mainAttractions: 'Street food hubs, cafes, markets',
-          activities: 'Food tours, cooking demos, local meetups',
-          difficulty: 'Moderate',
-          walkingLevel: 'Medium',
-          crowdLevel: 'Medium',
-          bestSeason: 'Summer',
-          transportation: 'Public transit, walking',
-          pros: 'Fantastic for food lovers and culture seekers.',
-          cons: 'May be intense for picky eaters.',
-          matchReason: 'Designed around your food preferences and immersive activities.',
-        },
-        {
-          name: `Restful Forge Retreat`,
-          estimate: `${profile.budget || '$4,100'} total`,
-          duration: profile.tripLength || '7 days',
-          summary: `An easy-paced escape with wellness, scenic neighborhoods, and calmer transportation.`,
-          mainAttractions: 'Parks, wellness centers, scenic promenades',
-          activities: 'Wellness sessions, gentle sightseeing, relaxing meals',
-          difficulty: 'Easy',
-          walkingLevel: 'Low',
-          crowdLevel: 'Low',
-          bestSeason: 'Early autumn',
-          transportation: 'Taxi, tram, walking',
-          pros: 'Low stress and relaxing pace.',
-          cons: 'Less intense sightseeing value.',
-          matchReason: 'Best if you prefer restful, comfortable travel.',
-        }
-      ];
-    }
-
-    const feedbackHandlers = [
-      { id: 'scout', rateId: 'scout-rating', commentId: 'scout-comment' },
-      { id: 'explorer', rateId: 'explorer-rating', commentId: 'explorer-comment' },
-      { id: 'guardian', rateId: 'guardian-rating', commentId: 'guardian-comment' },
-    ];
-
-    feedbackHandlers.forEach(agent => {
-      const button = document.getElementById(`submit-${agent.id}-feedback`);
-      button.addEventListener('click', () => {
-        const rating = document.getElementById(agent.rateId).value;
-        const comment = document.getElementById(agent.commentId).value.trim();
-        if (!comment) {
-          alert('Please share a short, constructive comment.');
-          return;
-        }
-        const entry = {
-          agent: agent.id,
-          rating: Number(rating),
-          comment,
-          timestamp: new Date().toISOString(),
-        };
-        state.feedback.push(entry);
-        saveToStorage('tripforge-feedback', state.feedback);
-        document.getElementById(agent.commentId).value = '';
-        alert('Feedback saved. It will help refine future AI guidance.');
-        updateSavedSummary();
-      });
-    });
-
-    themeToggle.addEventListener('click', () => {
-      const active = document.body.classList.toggle('light-theme');
-      themeToggle.classList.toggle('active', !active);
-      document.body.style.background = active
-        ? 'linear-gradient(180deg, #f5f2ec 0%, #dcd7ca 100%)'
-        : 'radial-gradient(circle at top, rgba(255,159,0,0.11), transparent 25%), linear-gradient(180deg, #070b12 0%, #0c1016 100%)';
-    });
-
-    function initialize() {
-      renderProfile();
-      renderItineraries();
-      renderGuardian();
-      updateSavedSummary();
-    }
-
-    initialize();
-  </script>
+})();
+</script>
 </body>
 </html>
