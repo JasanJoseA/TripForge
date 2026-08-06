@@ -12,6 +12,7 @@ export interface AgentExecutionContext {
   task: string;
   selectedAgents: AgentDefinition[];
   itineraryContext: string;
+  sharedContext: string;
 }
 
 export interface IntentAnalysis {

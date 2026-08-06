@@ -73,20 +73,61 @@ export class Orchestrator {
     };
   }
 
-  async run(userInput: string): Promise<OrchestrationResult> {
+  async run(userInput: string, providedAgents?: AgentDefinition[]): Promise<OrchestrationResult> {
     const intent = this.analyzeIntent(userInput);
-    const selectedAgents = this.selectAgents(intent.tasks);
+    const selectedAgents = providedAgents ?? this.selectAgents(intent.tasks);
 
-    const context: AgentExecutionContext = {
+    const sharedContext = this.buildSharedContext(userInput, intent, selectedAgents);
+    const initialContext: AgentExecutionContext = {
       userInput,
       task: intent.tasks.join(', '),
       selectedAgents,
-      itineraryContext: ''
+      itineraryContext: '',
+      sharedContext
     };
 
-    const outputs = [] as OrchestrationResult['outputs'];
+    const firstPassOutputs = await this.executeAgentsInParallel(selectedAgents, initialContext);
+    const collaborativeDraft = this.mergeOutputs(firstPassOutputs);
 
-    const executionResults = await Promise.all(
+    const refinementContext: AgentExecutionContext = {
+      userInput,
+      task: intent.tasks.join(', '),
+      selectedAgents,
+      itineraryContext: collaborativeDraft,
+      sharedContext: `${sharedContext}\n\nCollaborative draft:\n${collaborativeDraft}`
+    };
+
+    const finalOutputs = await this.executeAgentsInParallel(selectedAgents, refinementContext);
+    const itinerary = this.mergeOutputs(finalOutputs);
+    const summary = this.summarize(itinerary, finalOutputs);
+
+    return {
+      intent,
+      selectedAgents,
+      outputs: finalOutputs,
+      summary,
+      itinerary
+    };
+  }
+
+  private selectAgents(taskIds: AgentId[]): AgentDefinition[] {
+    return taskIds
+      .map((id) => getAgentById(id))
+      .filter((agent): agent is AgentDefinition => Boolean(agent));
+  }
+
+  private buildSharedContext(userInput: string, intent: IntentAnalysis, selectedAgents: AgentDefinition[]): string {
+    const peerAgents = selectedAgents.map((agent) => agent.name).join(', ');
+    return [
+      `User request: ${userInput}`,
+      `Intent: ${intent.intent}`,
+      `Selected agents: ${peerAgents}`,
+      'Collaboration rule: each agent should contribute a distinct part of the itinerary and align with the shared plan.'
+    ].join('\n');
+  }
+
+  private async executeAgentsInParallel(selectedAgents: AgentDefinition[], context: AgentExecutionContext): Promise<OrchestrationResult['outputs']> {
+    return Promise.all(
       selectedAgents.map(async (agent) => {
         const startedAt = Date.now();
         try {
@@ -109,25 +150,6 @@ export class Orchestrator {
         }
       })
     );
-
-    outputs.push(...executionResults);
-
-    const itinerary = this.mergeOutputs(outputs);
-    const summary = this.summarize(itinerary, outputs);
-
-    return {
-      intent,
-      selectedAgents,
-      outputs,
-      summary,
-      itinerary
-    };
-  }
-
-  private selectAgents(taskIds: AgentId[]): AgentDefinition[] {
-    return taskIds
-      .map((id) => getAgentById(id))
-      .filter((agent): agent is AgentDefinition => Boolean(agent));
   }
 
   private mergeOutputs(outputs: OrchestrationResult['outputs']): string {

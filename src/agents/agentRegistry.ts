@@ -4,9 +4,9 @@ const createAgent = (id: AgentId, name: string, description: string, template: (
   id,
   name,
   description,
-  execute: async ({ task, userInput }) => {
+  execute: async ({ task, userInput, sharedContext }) => {
     const prompt = template(task, userInput);
-    return `Agent ${name} handled ${task}.\n\n${prompt}`;
+    return `Agent ${name} handled ${task}.\n\n${prompt}\n\nCollaboration context:\n${sharedContext}`;
   }
 });
 

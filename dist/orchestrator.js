@@ -56,45 +56,33 @@ export class Orchestrator {
             destinationDetected
         };
     }
-    async run(userInput) {
+    async run(userInput, providedAgents) {
         const intent = this.analyzeIntent(userInput);
-        const selectedAgents = this.selectAgents(intent.tasks);
-        const context = {
+        const selectedAgents = providedAgents ?? this.selectAgents(intent.tasks);
+        const sharedContext = this.buildSharedContext(userInput, intent, selectedAgents);
+        const initialContext = {
             userInput,
             task: intent.tasks.join(', '),
             selectedAgents,
-            itineraryContext: ''
+            itineraryContext: '',
+            sharedContext
         };
-        const outputs = [];
-        const start = Date.now();
-        for (const agent of selectedAgents) {
-            const startedAt = Date.now();
-            try {
-                const content = await agent.execute(context);
-                outputs.push({
-                    agentId: agent.id,
-                    agentName: agent.name,
-                    content,
-                    status: 'completed',
-                    durationMs: Date.now() - startedAt
-                });
-            }
-            catch (error) {
-                outputs.push({
-                    agentId: agent.id,
-                    agentName: agent.name,
-                    content: error instanceof Error ? error.message : 'Agent failed unexpectedly.',
-                    status: 'failed',
-                    durationMs: Date.now() - startedAt
-                });
-            }
-        }
-        const itinerary = this.mergeOutputs(outputs);
-        const summary = this.summarize(itinerary, outputs);
+        const firstPassOutputs = await this.executeAgentsInParallel(selectedAgents, initialContext);
+        const collaborativeDraft = this.mergeOutputs(firstPassOutputs);
+        const refinementContext = {
+            userInput,
+            task: intent.tasks.join(', '),
+            selectedAgents,
+            itineraryContext: collaborativeDraft,
+            sharedContext: `${sharedContext}\n\nCollaborative draft:\n${collaborativeDraft}`
+        };
+        const finalOutputs = await this.executeAgentsInParallel(selectedAgents, refinementContext);
+        const itinerary = this.mergeOutputs(finalOutputs);
+        const summary = this.summarize(itinerary, finalOutputs);
         return {
             intent,
             selectedAgents,
-            outputs,
+            outputs: finalOutputs,
             summary,
             itinerary
         };
@@ -103,6 +91,39 @@ export class Orchestrator {
         return taskIds
             .map((id) => getAgentById(id))
             .filter((agent) => Boolean(agent));
+    }
+    buildSharedContext(userInput, intent, selectedAgents) {
+        const peerAgents = selectedAgents.map((agent) => agent.name).join(', ');
+        return [
+            `User request: ${userInput}`,
+            `Intent: ${intent.intent}`,
+            `Selected agents: ${peerAgents}`,
+            'Collaboration rule: each agent should contribute a distinct part of the itinerary and align with the shared plan.'
+        ].join('\n');
+    }
+    async executeAgentsInParallel(selectedAgents, context) {
+        return Promise.all(selectedAgents.map(async (agent) => {
+            const startedAt = Date.now();
+            try {
+                const content = await agent.execute(context);
+                return {
+                    agentId: agent.id,
+                    agentName: agent.name,
+                    content,
+                    status: 'completed',
+                    durationMs: Date.now() - startedAt
+                };
+            }
+            catch (error) {
+                return {
+                    agentId: agent.id,
+                    agentName: agent.name,
+                    content: error instanceof Error ? error.message : 'Agent failed unexpectedly.',
+                    status: 'failed',
+                    durationMs: Date.now() - startedAt
+                };
+            }
+        }));
     }
     mergeOutputs(outputs) {
         return outputs
