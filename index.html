@@ -6,17 +6,17 @@
 <title>TripForge — Agent Playground</title>
 <style>
   :root {
-    --bg: #12102a;
-    --panel: #1c1840;
-    --panel-2: #241f52;
-    --accent-pink: #ff5eb0;
-    --accent-yellow: #ffd23f;
-    --accent-teal: #35e0c9;
-    --accent-blue: #5b7cff;
-    --text: #f2f0ff;
-    --text-dim: #b7b1e0;
-    --on: #35e0c9;
-    --off: #443c85;
+    --bg: #050816;
+    --panel: #121728;
+    --panel-2: #1b243b;
+    --accent-pink: #ff2ea8;
+    --accent-yellow: #ffbf2f;
+    --accent-teal: #2ce8ff;
+    --accent-blue: #7dff5b;
+    --text: #f7fbff;
+    --text-dim: #95a8c8;
+    --on: #2ce8ff;
+    --off: #2c3a54;
   }
 
   * { box-sizing: border-box; }
@@ -24,7 +24,7 @@
   body {
     margin: 0;
     font-family: 'Segoe UI', system-ui, sans-serif;
-    background: radial-gradient(circle at top left, #241f52, #12102a 60%);
+    background: radial-gradient(circle at top left, #1e2740 0%, #080b18 55%, #050816 100%);
     color: var(--text);
     min-height: 100vh;
   }
@@ -35,7 +35,8 @@
     align-items: baseline;
     gap: 14px;
     border-bottom: 3px solid var(--accent-pink);
-    background: linear-gradient(90deg, #1c1840, #241f52);
+    background: linear-gradient(90deg, #11172a, #1a243d 45%, #11172a);
+    box-shadow: 0 0 24px rgba(44, 232, 255, 0.12);
   }
 
   header h1 {
@@ -45,6 +46,7 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    text-shadow: 0 0 16px rgba(255, 46, 168, 0.2);
   }
 
   header span {
@@ -56,9 +58,10 @@
     display: flex;
     gap: 10px;
     padding: 16px 28px;
-    background: var(--panel);
+    background: rgba(18, 23, 40, 0.92);
     align-items: center;
     flex-wrap: wrap;
+    border-bottom: 1px solid rgba(44, 232, 255, 0.18);
   }
 
   .prompt-bar textarea {
@@ -67,24 +70,25 @@
     min-height: 46px;
     max-height: 120px;
     resize: vertical;
-    background: #100e28;
+    background: #060b16;
     color: var(--text);
-    border: 2px solid var(--accent-blue);
+    border: 2px solid rgba(44, 232, 255, 0.45);
     border-radius: 10px;
     padding: 10px 12px;
     font-size: 0.95rem;
+    box-shadow: inset 0 0 0 1px rgba(255, 191, 47, 0.08);
   }
 
   #runBtn {
     background: linear-gradient(135deg, var(--accent-pink), var(--accent-yellow));
     border: none;
-    color: #1c1840;
+    color: #07111e;
     font-weight: 700;
     font-size: 1rem;
     padding: 14px 26px;
     border-radius: 12px;
     cursor: pointer;
-    box-shadow: 0 4px 0 #a8306f;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.14), 0 10px 24px rgba(255, 46, 168, 0.24);
     transition: transform 0.08s ease;
   }
   #runBtn:hover { transform: translateY(-2px); }
@@ -104,10 +108,12 @@
   }
 
   .panel {
-    background: var(--panel);
+    background: linear-gradient(180deg, rgba(18, 23, 40, 0.98), rgba(27, 36, 59, 0.96));
     border-radius: 14px;
     padding: 16px;
     min-height: 420px;
+    border: 1px solid rgba(44, 232, 255, 0.16);
+    box-shadow: 0 12px 30px rgba(2, 7, 18, 0.45);
   }
 
   .panel h2 {
@@ -116,6 +122,7 @@
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--accent-teal);
+    text-shadow: 0 0 10px rgba(44, 232, 255, 0.16);
   }
 
   /* Agent toggles */
@@ -280,25 +287,25 @@
     {
       id: "destination",
       name: "🗺️ Destination Research",
-      color: "#ff5eb0",
+      color: "#ff2ea8",
       role: "You are the Destination Research Agent for a travel planning system. Focus only on destination recommendations, local highlights, hidden gems, seasonal notes, and safety-at-a-glance. Be concise (under 150 words)."
     },
     {
       id: "flight",
       name: "✈️ Flight",
-      color: "#5b7cff",
+      color: "#2ce8ff",
       role: "You are the Flight Agent. Focus only on flight suggestions, likely airports, travel times, stopovers, and airline comparisons. Be concise (under 150 words)."
     },
     {
       id: "hotel",
       name: "🏨 Hotel",
-      color: "#ffd23f",
+      color: "#ffbf2f",
       role: "You are the Hotel Agent. Focus only on accommodation options across budget, mid-range, and luxury tiers, amenities, and family-friendliness. Be concise (under 150 words)."
     },
     {
       id: "transportation",
       name: "🚆 Transportation",
-      color: "#35e0c9",
+      color: "#7dff5b",
       role: "You are the Transportation Agent. Focus only on trains, buses, rental cars, metro systems, taxis, and ride-sharing for getting around. Be concise (under 150 words)."
     },
     {
